@@ -16,5 +16,6 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore(); // In case we ever need it, though we use Prisma
+// Safely export auth so the build doesn't crash if Firebase is missing
+export const adminAuth = admin.apps.length > 0 ? admin.auth() : ({} as admin.auth.Auth);
+export const adminDb = admin.apps.length > 0 ? admin.firestore() : ({} as admin.firestore.Firestore);
