@@ -1,0 +1,958 @@
+// This is your Prisma schema file.
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id              String    @id @default(cuid())
+  parent_id       String?
+  name            String
+  short_name      String?
+  cin             String?
+  gstin           String?
+  pan             String?
+  reg_address     Json?
+  corr_address    Json?
+  phone_numbers   String?
+  email           String?
+  website         String?
+  incorporated_at DateTime?
+  logo_url        String?
+  status          String    @default("active")
+  notes           String?
+  created_by      String?
+  created_at      DateTime  @default(now())
+  updated_by      String?
+  updated_at      DateTime  @updatedAt
+  is_deleted      Boolean   @default(false)
+  is_main_company Boolean   @default(false)
+
+  // Relations
+  sites           Site[]
+  employees       Employee[]
+  transactions    Transaction[]
+  purchases       CustomerPurchase[]
+  financial_years FinancialYear[]
+  account_groups  AccountGroup[]
+  ledgers         Ledger[]
+  vouchers        Voucher[]
+  branches        Branch[]
+  currencies      Currency[]
+  exchange_rates  ExchangeRate[]
+  cost_categories CostCategory[]
+  cost_centres    CostCentre[]
+  voucher_types   VoucherType[]
+  journal_entries JournalEntry[]
+
+  stock_groups             StockGroup[]
+  stock_categories         StockCategory[]
+  units_of_measure         UnitOfMeasure[]
+  stock_items              StockItem[]
+  godowns                  Godown[]
+  invoice_items            InvoiceItem[]
+  stock_movements          StockMovement[]
+  voucher_bill_allocations VoucherBillAllocation[]
+}
+
+model Site {
+  id                  String    @id @default(cuid())
+  company_id          String
+  name                String
+  site_code           String
+  site_type           String
+  address             Json?
+  city                String?
+  state               String?
+  total_land_area     Float?
+  land_area_unit      String?
+  rera_number         String?
+  rera_reg_date       DateTime?
+  rera_expiry_date    DateTime?
+  expected_completion DateTime?
+  actual_completion   DateTime?
+  status              String    @default("active")
+  property_types      String?
+  description         String?
+  image_urls          String?
+  created_by          String?
+  created_at          DateTime  @default(now())
+  updated_by          String?
+  updated_at          DateTime  @updatedAt
+  is_deleted          Boolean   @default(false)
+
+  // Relations
+  company      Company            @relation(fields: [company_id], references: [id])
+  units        SiteUnit[]
+  transactions Transaction[]
+  purchases    CustomerPurchase[]
+}
+
+model SiteUnit {
+  id              String   @id @default(cuid())
+  site_id         String
+  unit_number     String
+  floor_number    Int?
+  tower_block     String?
+  property_type   String
+  carpet_area     Float?
+  builtup_area    Float?
+  base_price_sqft Float?
+  total_price     Float?
+  status          String   @default("available")
+  customer_id     String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  // Relations
+  site      Site               @relation(fields: [site_id], references: [id])
+  purchases CustomerPurchase[]
+}
+
+model Employee {
+  id                 String    @id @default(cuid())
+  employee_code      String    @unique
+  company_id         String
+  first_name         String
+  middle_name        String?
+  last_name          String
+  dob                DateTime?
+  gender             String?
+  blood_group        String?
+  personal_email     String?
+  work_email         String?
+  personal_mobile    String
+  emergency_contact  Json?
+  current_address    Json?
+  permanent_address  Json?
+  aadhaar_encrypted  String?
+  pan_number         String?
+  bank_details       Json?
+  department         String
+  designation        String?
+  join_date          DateTime
+  employment_type    String
+  reporting_manager  String?
+  gross_salary       Float?
+  salary_structure   Json?
+  portal_role        String    @default("agent")
+  auth_uid           String?
+  access_status      String    @default("active")
+  assigned_companies String?
+  photo_url          String?
+  status             String    @default("active")
+  notes              String?
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  is_deleted         Boolean   @default(false)
+
+  // Relations
+  company      Company       @relation(fields: [company_id], references: [id])
+  transactions Transaction[]
+}
+
+model Customer {
+  id                String    @id @default(cuid())
+  first_name        String
+  middle_name       String?
+  last_name         String
+  fathers_name      String?
+  dob               DateTime?
+  gender            String?
+  customer_type     String    @default("individual")
+  company_name      String?
+  mobile_1          String
+  mobile_2          String?
+  email             String?
+  current_address   Json?
+  permanent_address Json?
+  aadhaar_encrypted String?
+  pan_number        String?
+  passport_number   String?
+  voter_id          String?
+  photo_url         String?
+  notes             String?
+  added_by          String?
+  added_at          DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  is_deleted        Boolean   @default(false)
+
+  // Relations
+  purchases    CustomerPurchase[]
+  instalments  InstalmentSchedule[]
+  transactions Transaction[]
+}
+
+model CustomerPurchase {
+  id                    String    @id @default(cuid())
+  customer_id           String
+  company_id            String
+  site_id               String
+  unit_id               String?
+  booking_date          DateTime
+  agreement_date        DateTime?
+  possession_date       DateTime?
+  registration_date     DateTime?
+  agent_id              String?
+  payment_plan          String
+  total_agreement_value Float
+  booking_amount        Float?
+  stamp_duty            Float?
+  total_payable         Float?
+  num_instalments       Int
+  instalment_frequency  String?
+  first_instalment_date DateTime?
+  status                String    @default("active")
+  notes                 String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+
+  // Relations
+  customer    Customer             @relation(fields: [customer_id], references: [id])
+  company     Company              @relation(fields: [company_id], references: [id])
+  site        Site                 @relation(fields: [site_id], references: [id])
+  unit        SiteUnit?            @relation(fields: [unit_id], references: [id])
+  instalments InstalmentSchedule[]
+}
+
+model InstalmentSchedule {
+  id                String    @id @default(cuid())
+  purchase_id       String
+  customer_id       String
+  instalment_number Int
+  due_date          DateTime
+  amount_due        Float
+  amount_received   Float     @default(0)
+  payment_date      DateTime?
+  receipt_number    String?
+  payment_mode      String?
+  transaction_id    String?
+  status            String    @default("pending")
+  notes             String?
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  purchase CustomerPurchase @relation(fields: [purchase_id], references: [id])
+  customer Customer         @relation(fields: [customer_id], references: [id])
+}
+
+model Transaction {
+  id               String    @id @default(cuid())
+  transaction_code String    @unique
+  company_id       String
+  site_id          String?
+  category         String
+  sub_category     String?
+  transaction_date DateTime
+  amount           Float
+  payment_mode     String
+  reference_no     String?
+  bank_name        String?
+  description      String?
+  document_url     String?
+  notes            String?
+  customer_id      String?
+  employee_id      String?
+  instalment_id    String?
+  vendor_name      String?
+  vendor_mobile    String?
+  invoice_number   String?
+  invoice_date     DateTime?
+  pay_period_month Int?
+  pay_period_year  Int?
+  salary_breakdown Json?
+  added_by         String
+  added_at         DateTime  @default(now())
+  updated_by       String?
+  updated_at       DateTime  @updatedAt
+  status           String    @default("active")
+  is_deleted       Boolean   @default(false)
+
+  // Relations
+  company  Company   @relation(fields: [company_id], references: [id])
+  site     Site?     @relation(fields: [site_id], references: [id])
+  customer Customer? @relation(fields: [customer_id], references: [id])
+  employee Employee? @relation(fields: [employee_id], references: [id])
+}
+
+model ApprovalRequest {
+  id                  String    @id @default(cuid())
+  request_code        String    @unique
+  request_type        String
+  transaction_id      String
+  requested_by        String
+  requested_at        DateTime  @default(now())
+  reason              String
+  original_data       Json
+  requested_changes   Json?
+  status              String    @default("pending")
+  reviewed_by         String?
+  reviewed_at         DateTime?
+  review_notes        String?
+  clarification_note  String?
+  clarification_reply String?
+  updated_at          DateTime  @updatedAt
+}
+
+model Task {
+  id                   String    @id @default(cuid())
+  title                String
+  description          String?
+  assigned_to          String
+  assigned_by          String
+  priority             String    @default("medium")
+  status               String    @default("todo")
+  due_date             DateTime?
+  due_time             String?
+  tags                 String?
+  company_id           String?
+  site_id              String?
+  is_recurring         Boolean   @default(false)
+  recurrence_type      String?
+  recurrence_parent_id String?
+  attachments          String?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+  completed_at         DateTime?
+  is_deleted           Boolean   @default(false)
+
+  comments TaskComment[]
+}
+
+model TaskComment {
+  id         String   @id @default(cuid())
+  task_id    String
+  author_id  String
+  content    String
+  created_at DateTime @default(now())
+
+  task Task @relation(fields: [task_id], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  user_id    String
+  type       String
+  title      String
+  message    String?
+  link       String?
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actor_id    String?
+  actor_name  String?
+  actor_email String?
+  action      String
+  table_name  String?
+  record_id   String?
+  old_data    Json?
+  new_data    Json?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+}
+
+// --- ACCOUNTING MODULE (PRD PHASE 1) ---
+
+model FinancialYear {
+  id         String    @id @default(uuid()) @db.Uuid
+  company_id String
+  year_label String    @db.VarChar(10)
+  start_date DateTime  @db.Date
+  end_date   DateTime  @db.Date
+  is_current Boolean   @default(false)
+  is_closed  Boolean   @default(false)
+  closed_at  DateTime? @db.Timestamptz
+  closed_by  String?   @db.Uuid
+  created_at DateTime  @default(now()) @db.Timestamptz
+  updated_at DateTime  @default(now()) @db.Timestamptz
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  vouchers Voucher[]
+
+  stock_movements StockMovement[]
+
+  @@unique([company_id, year_label])
+  @@map("financial_years")
+}
+
+model Branch {
+  id             String   @id @default(uuid()) @db.Uuid
+  company_id     String
+  name           String   @db.VarChar(255)
+  code           String?  @db.VarChar(20)
+  gstin          String?  @db.VarChar(15)
+  address_line1  String?  @db.VarChar(255)
+  state_code     String?  @db.Char(2)
+  is_head_office Boolean  @default(false)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now()) @db.Timestamptz
+  updated_at     DateTime @default(now()) @db.Timestamptz
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  vouchers Voucher[]
+
+  @@unique([company_id, code])
+  @@map("branches")
+}
+
+model AccountGroup {
+  id                   String    @id @default(uuid()) @db.Uuid
+  company_id           String
+  parent_id            String?   @db.Uuid
+  name                 String    @db.VarChar(255)
+  alias                String?   @db.VarChar(100)
+  nature               String    @db.VarChar(20) // ASSETS, LIABILITIES, INCOME, EXPENSES
+  affects_gross_profit Boolean   @default(false)
+  is_primary           Boolean   @default(true)
+  is_system            Boolean   @default(false)
+  sequence_no          Int       @default(0)
+  notes                String?
+  tally_guid           String?   @db.VarChar(100)
+  tally_name           String?   @db.VarChar(255)
+  created_at           DateTime  @default(now()) @db.Timestamptz
+  updated_at           DateTime  @default(now()) @db.Timestamptz
+  created_by           String?   @db.Uuid
+  updated_by           String?   @db.Uuid
+  deleted_at           DateTime? @db.Timestamptz
+
+  company  Company        @relation(fields: [company_id], references: [id])
+  parent   AccountGroup?  @relation("GroupHierarchy", fields: [parent_id], references: [id])
+  children AccountGroup[] @relation("GroupHierarchy")
+  ledgers  Ledger[]
+
+  @@unique([company_id, name])
+  @@map("account_groups")
+}
+
+model Ledger {
+  id                   String    @id @default(uuid()) @db.Uuid
+  company_id           String
+  group_id             String    @db.Uuid
+  name                 String    @db.VarChar(255)
+  alias                String?   @db.VarChar(100)
+  code                 String?   @db.VarChar(50)
+  nature               String    @db.VarChar(20)
+  opening_balance      Decimal   @default(0) @db.Decimal(19, 4)
+  opening_balance_type String?   @db.Char(2) // DR, CR
+  opening_date         DateTime? @db.Date
+
+  is_party      Boolean @default(false)
+  contact_name  String? @db.VarChar(255)
+  gstin         String? @db.VarChar(15)
+  pan           String? @db.VarChar(10)
+  phone         String? @db.VarChar(20)
+  email         String? @db.VarChar(150)
+  address_line1 String? @db.VarChar(255)
+  address_line2 String? @db.VarChar(255)
+  city          String? @db.VarChar(100)
+  state_code    String? @db.Char(2)
+  pincode       String? @db.VarChar(6)
+  country       String? @default("IN") @db.Char(2)
+
+  gst_registration_type String?  @db.VarChar(30)
+  is_rcm_applicable     Boolean  @default(false)
+  is_tds_deductible     Boolean  @default(false)
+  tds_section_id        String?  @db.Uuid
+  tds_rate_override     Decimal? @db.Decimal(5, 2)
+
+  bank_name       String? @db.VarChar(100)
+  bank_account_no String? @db.VarChar(30)
+  bank_ifsc       String? @db.VarChar(11)
+  bank_branch     String? @db.VarChar(100)
+
+  track_bill_by_bill Boolean  @default(false)
+  track_cost_centre  Boolean  @default(false)
+  bill_credit_period Int?
+  credit_limit       Decimal? @db.Decimal(19, 4)
+  currency_id        String?  @db.Uuid
+
+  is_inventory_affected Boolean   @default(false)
+  is_system             Boolean   @default(false)
+  is_active             Boolean   @default(true)
+  tally_guid            String?   @db.VarChar(100)
+  tally_name            String?   @db.VarChar(255)
+  notes                 String?
+  created_at            DateTime  @default(now()) @db.Timestamptz
+  updated_at            DateTime  @default(now()) @db.Timestamptz
+  created_by            String?   @db.Uuid
+  updated_by            String?   @db.Uuid
+  deleted_at            DateTime? @db.Timestamptz
+  version               Int       @default(1)
+
+  company           Company        @relation(fields: [company_id], references: [id])
+  group             AccountGroup   @relation(fields: [group_id], references: [id])
+  currency          Currency?      @relation(fields: [currency_id], references: [id])
+  journal_entries   JournalEntry[]
+  vouchers_as_party Voucher[]      @relation("PartyLedger")
+
+  voucher_bill_allocations VoucherBillAllocation[]
+
+  @@unique([company_id, name])
+  @@map("ledgers")
+}
+
+model Currency {
+  id             String   @id @default(uuid()) @db.Uuid
+  company_id     String
+  code           String   @db.Char(3)
+  name           String   @db.VarChar(100)
+  symbol         String?  @db.VarChar(5)
+  decimal_places Int      @default(2) @db.SmallInt
+  is_base        Boolean  @default(false)
+  is_active      Boolean  @default(true)
+  created_at     DateTime @default(now()) @db.Timestamptz
+
+  company         Company        @relation(fields: [company_id], references: [id])
+  exchange_rates  ExchangeRate[]
+  ledgers         Ledger[]
+  vouchers        Voucher[]
+  journal_entries JournalEntry[]
+
+  @@unique([company_id, code])
+  @@map("currencies")
+}
+
+model ExchangeRate {
+  id            String   @id @default(uuid()) @db.Uuid
+  company_id    String
+  currency_id   String   @db.Uuid
+  rate_date     DateTime @db.Date
+  buy_rate      Decimal  @db.Decimal(19, 6)
+  sell_rate     Decimal  @db.Decimal(19, 6)
+  standard_rate Decimal  @db.Decimal(19, 6)
+  created_at    DateTime @default(now()) @db.Timestamptz
+  created_by    String?  @db.Uuid
+
+  company  Company  @relation(fields: [company_id], references: [id])
+  currency Currency @relation(fields: [currency_id], references: [id])
+
+  @@unique([company_id, currency_id, rate_date])
+  @@map("exchange_rates")
+}
+
+model CostCategory {
+  id                   String   @id @default(uuid()) @db.Uuid
+  company_id           String
+  name                 String   @db.VarChar(255)
+  allocate_revenue     Boolean  @default(true)
+  allocate_non_revenue Boolean  @default(false)
+  is_active            Boolean  @default(true)
+  created_at           DateTime @default(now()) @db.Timestamptz
+
+  company         Company        @relation(fields: [company_id], references: [id])
+  cost_centres    CostCentre[]
+  journal_entries JournalEntry[]
+
+  @@unique([company_id, name])
+  @@map("cost_categories")
+}
+
+model CostCentre {
+  id          String   @id @default(uuid()) @db.Uuid
+  company_id  String
+  category_id String?  @db.Uuid
+  parent_id   String?  @db.Uuid
+  name        String   @db.VarChar(255)
+  alias       String?  @db.VarChar(100)
+  code        String?  @db.VarChar(50)
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now()) @db.Timestamptz
+
+  company         Company        @relation(fields: [company_id], references: [id])
+  category        CostCategory?  @relation(fields: [category_id], references: [id])
+  parent          CostCentre?    @relation("CostCentreHierarchy", fields: [parent_id], references: [id])
+  children        CostCentre[]   @relation("CostCentreHierarchy")
+  journal_entries JournalEntry[]
+
+  @@unique([company_id, name])
+  @@map("cost_centres")
+}
+
+model VoucherType {
+  id                  String   @id @default(uuid()) @db.Uuid
+  company_id          String
+  name                String   @db.VarChar(100)
+  code                String   @db.VarChar(20)
+  base_type           String   @db.VarChar(30)
+  numbering_method    String   @default("AUTO") @db.VarChar(20)
+  prefix              String?  @db.VarChar(20)
+  suffix              String?  @db.VarChar(20)
+  start_number        Int      @default(1)
+  last_number         Int      @default(0)
+  separator           String?  @default("/") @db.VarChar(5)
+  is_active           Boolean  @default(true)
+  is_system           Boolean  @default(false)
+  affects_stock       Boolean  @default(false)
+  print_after_save    Boolean  @default(false)
+  is_default_for_type Boolean  @default(false)
+  created_at          DateTime @default(now()) @db.Timestamptz
+  updated_at          DateTime @default(now()) @db.Timestamptz
+
+  company  Company   @relation(fields: [company_id], references: [id])
+  vouchers Voucher[]
+
+  @@unique([company_id, code])
+  @@map("voucher_types")
+}
+
+model Voucher {
+  id                  String    @id @default(uuid()) @db.Uuid
+  company_id          String
+  branch_id           String?   @db.Uuid
+  financial_year_id   String    @db.Uuid
+  voucher_type_id     String    @db.Uuid
+  voucher_number      String    @db.VarChar(50)
+  voucher_date        DateTime  @db.Date
+  reference_number    String?   @db.VarChar(100)
+  reference_date      DateTime? @db.Date
+  party_ledger_id     String?   @db.Uuid
+  party_name          String?   @db.VarChar(255)
+  narration           String?
+  status              String    @default("DRAFT") @db.VarChar(20)
+  is_optional         Boolean   @default(false)
+  is_post_dated       Boolean   @default(false)
+  total_debit         Decimal   @default(0) @db.Decimal(19, 4)
+  total_credit        Decimal   @default(0) @db.Decimal(19, 4)
+  currency_id         String?   @db.Uuid
+  exchange_rate       Decimal?  @default(1) @db.Decimal(19, 6)
+  supply_type         String?   @db.VarChar(20)
+  place_of_supply     String?   @db.Char(2)
+  reverse_charge      Boolean   @default(false)
+  reversed_by_id      String?   @unique @db.Uuid
+  reversal_of_id      String?   @unique @db.Uuid
+  original_voucher_id String?   @db.Uuid
+  tally_guid          String?   @db.VarChar(100)
+  attachment_url      String[]
+  posted_at           DateTime? @db.Timestamptz
+  posted_by           String?   @db.Uuid
+  cancelled_at        DateTime? @db.Timestamptz
+  cancelled_by        String?   @db.Uuid
+  cancel_reason       String?
+  created_at          DateTime  @default(now()) @db.Timestamptz
+  updated_at          DateTime  @default(now()) @db.Timestamptz
+  created_by          String    @db.Uuid
+  updated_by          String?   @db.Uuid
+  version             Int       @default(1)
+
+  company         Company        @relation(fields: [company_id], references: [id])
+  branch          Branch?        @relation(fields: [branch_id], references: [id])
+  financial_year  FinancialYear  @relation(fields: [financial_year_id], references: [id])
+  voucher_type    VoucherType    @relation(fields: [voucher_type_id], references: [id])
+  party_ledger    Ledger?        @relation("PartyLedger", fields: [party_ledger_id], references: [id])
+  currency        Currency?      @relation(fields: [currency_id], references: [id])
+  journal_entries JournalEntry[]
+
+  reversed_by      Voucher?  @relation("VoucherReversal", fields: [reversed_by_id], references: [id])
+  reversal_of      Voucher?  @relation("VoucherReversal")
+  original_voucher Voucher?  @relation("VoucherAmendment", fields: [original_voucher_id], references: [id])
+  amended_vouchers Voucher[] @relation("VoucherAmendment")
+
+  invoice_items            InvoiceItem[]
+  stock_movements          StockMovement[]
+  voucher_bill_allocations VoucherBillAllocation[]
+
+  @@unique([company_id, financial_year_id, voucher_type_id, voucher_number])
+  @@map("vouchers")
+}
+
+model JournalEntry {
+  id                  String    @id @default(uuid()) @db.Uuid
+  voucher_id          String    @db.Uuid
+  company_id          String
+  ledger_id           String    @db.Uuid
+  entry_type          String    @db.Char(2) // DR, CR
+  amount              Decimal   @db.Decimal(19, 4)
+  currency_id         String?   @db.Uuid
+  foreign_amount      Decimal?  @db.Decimal(19, 4)
+  exchange_rate       Decimal?  @default(1) @db.Decimal(19, 6)
+  narration           String?
+  cost_centre_id      String?   @db.Uuid
+  cost_category_id    String?   @db.Uuid
+  bill_ref_type       String?   @db.VarChar(20)
+  bill_ref_number     String?   @db.VarChar(100)
+  bill_ref_date       DateTime? @db.Date
+  bill_ref_amount     Decimal?  @db.Decimal(19, 4)
+  bank_date           DateTime? @db.Date
+  bank_transaction_id String?   @db.VarChar(100)
+  is_reconciled       Boolean   @default(false)
+  reconciled_at       DateTime? @db.Timestamptz
+  is_inventory_line   Boolean   @default(false)
+  line_sequence       Int       @default(0) @db.SmallInt
+  created_at          DateTime  @default(now()) @db.Timestamptz
+  updated_at          DateTime  @default(now()) @db.Timestamptz
+
+  voucher       Voucher       @relation(fields: [voucher_id], references: [id], onDelete: Restrict)
+  company       Company       @relation(fields: [company_id], references: [id])
+  ledger        Ledger        @relation(fields: [ledger_id], references: [id])
+  currency      Currency?     @relation(fields: [currency_id], references: [id])
+  cost_centre   CostCentre?   @relation(fields: [cost_centre_id], references: [id])
+  cost_category CostCategory? @relation(fields: [cost_category_id], references: [id])
+
+  voucher_bill_allocations VoucherBillAllocation[]
+
+  @@map("journal_entries")
+}
+
+model AccountingAuditLog {
+  id             BigInt   @id @default(autoincrement())
+  company_id     String
+  table_name     String   @db.VarChar(100)
+  record_id      String   @db.Uuid
+  action         String   @db.VarChar(10) // INSERT, UPDATE, DELETE, POST, CANCEL, REVERSE
+  old_data       Json?
+  new_data       Json?
+  changed_fields String[]
+  ip_address     String?  @db.Inet
+  user_agent     String?
+  performed_by   String   @db.Uuid
+  performed_at   DateTime @default(now()) @db.Timestamptz
+
+  @@map("audit_log")
+}
+
+model LedgerBalance {
+  id                String   @id @default(uuid()) @db.Uuid
+  company_id        String
+  financial_year_id String   @db.Uuid
+  ledger_id         String   @db.Uuid
+  opening_dr        Decimal  @default(0) @db.Decimal(19, 4)
+  opening_cr        Decimal  @default(0) @db.Decimal(19, 4)
+  period_dr         Decimal  @default(0) @db.Decimal(19, 4)
+  period_cr         Decimal  @default(0) @db.Decimal(19, 4)
+  closing_dr        Decimal  @default(0) @db.Decimal(19, 4)
+  closing_cr        Decimal  @default(0) @db.Decimal(19, 4)
+  last_updated      DateTime @default(now()) @db.Timestamptz
+
+  @@unique([company_id, financial_year_id, ledger_id])
+  @@map("ledger_balances")
+}
+
+model LedgerMonthlySummary {
+  id                String  @id @default(uuid()) @db.Uuid
+  company_id        String
+  financial_year_id String  @db.Uuid
+  ledger_id         String  @db.Uuid
+  month             Int     @db.SmallInt
+  year              Int     @db.SmallInt
+  dr_total          Decimal @default(0) @db.Decimal(19, 4)
+  cr_total          Decimal @default(0) @db.Decimal(19, 4)
+
+  @@unique([company_id, ledger_id, year, month])
+  @@map("ledger_monthly_summary")
+}
+
+// ==========================================
+// PHASE 2: INVENTORY & INVOICING MODELS
+// ==========================================
+
+model StockGroup {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id  String
+  company     Company      @relation(fields: [company_id], references: [id])
+  parent_id   String?      @db.Uuid
+  parent      StockGroup?  @relation("StockGroupHierarchy", fields: [parent_id], references: [id])
+  children    StockGroup[] @relation("StockGroupHierarchy")
+  name        String       @db.VarChar(255)
+  is_addable  Boolean      @default(true)
+  created_at  DateTime     @default(now()) @db.Timestamptz
+  stock_items StockItem[]
+
+  @@unique([company_id, name])
+  @@map("stock_groups")
+}
+
+model StockCategory {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id  String
+  company     Company         @relation(fields: [company_id], references: [id])
+  parent_id   String?         @db.Uuid
+  parent      StockCategory?  @relation("StockCategoryHierarchy", fields: [parent_id], references: [id])
+  children    StockCategory[] @relation("StockCategoryHierarchy")
+  name        String          @db.VarChar(255)
+  created_at  DateTime        @default(now()) @db.Timestamptz
+  stock_items StockItem[]
+
+  @@unique([company_id, name])
+  @@map("stock_categories")
+}
+
+model UnitOfMeasure {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id     String
+  company        Company  @relation(fields: [company_id], references: [id])
+  symbol         String   @db.VarChar(20)
+  formal_name    String?  @db.VarChar(100)
+  decimal_places Int      @default(0) @db.SmallInt
+  created_at     DateTime @default(now()) @db.Timestamptz
+
+  base_items StockItem[] @relation("BaseUnit")
+  alt_items  StockItem[] @relation("AltUnit")
+
+  @@unique([company_id, symbol])
+  @@map("units_of_measure")
+}
+
+model StockItem {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id  String
+  company     Company        @relation(fields: [company_id], references: [id])
+  group_id    String?        @db.Uuid
+  group       StockGroup?    @relation(fields: [group_id], references: [id])
+  category_id String?        @db.Uuid
+  category    StockCategory? @relation(fields: [category_id], references: [id])
+
+  name        String  @db.VarChar(255)
+  alias       String? @db.VarChar(100)
+  code        String? @db.VarChar(50)
+  hsn_code    String? @db.VarChar(10)
+  description String? @db.Text
+
+  base_unit_id        String?        @db.Uuid
+  base_unit           UnitOfMeasure? @relation("BaseUnit", fields: [base_unit_id], references: [id])
+  alt_unit_id         String?        @db.Uuid
+  alt_unit            UnitOfMeasure? @relation("AltUnit", fields: [alt_unit_id], references: [id])
+  alt_unit_conversion Decimal?       @db.Decimal(10, 4)
+
+  costing_method String   @default("FIFO") @db.VarChar(20)
+  standard_cost  Decimal? @db.Decimal(19, 4)
+  standard_price Decimal? @db.Decimal(19, 4)
+
+  gst_applicable Boolean  @default(true)
+  gst_taxability String?  @db.VarChar(20)
+  gst_rate       Decimal? @db.Decimal(5, 2)
+  cess_rate      Decimal? @db.Decimal(5, 2)
+
+  created_at DateTime  @default(now()) @db.Timestamptz
+  deleted_at DateTime? @db.Timestamptz
+
+  invoice_items   InvoiceItem[]
+  stock_movements StockMovement[]
+
+  @@unique([company_id, name])
+  @@map("stock_items")
+}
+
+model Godown {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id String
+  company    Company  @relation(fields: [company_id], references: [id])
+  name       String   @db.VarChar(255)
+  alias      String?  @db.VarChar(100)
+  address    String?  @db.Text
+  is_main    Boolean  @default(false)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamptz
+
+  invoice_items   InvoiceItem[]
+  stock_movements StockMovement[]
+
+  @@unique([company_id, name])
+  @@map("godowns")
+}
+
+model InvoiceItem {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  voucher_id String  @db.Uuid
+  voucher    Voucher @relation(fields: [voucher_id], references: [id], onDelete: Restrict)
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  line_number Int @db.SmallInt
+
+  stock_item_id String    @db.Uuid
+  stock_item    StockItem @relation(fields: [stock_item_id], references: [id])
+
+  godown_id String? @db.Uuid
+  godown    Godown? @relation(fields: [godown_id], references: [id])
+
+  quantity        Decimal         @db.Decimal(19, 4)
+  rate            Decimal         @db.Decimal(19, 4)
+  amount          Decimal         @db.Decimal(19, 4)
+  discount_perc   Decimal?        @db.Decimal(5, 2)
+  discount_amt    Decimal?        @db.Decimal(19, 4)
+  stock_movements StockMovement[]
+
+  @@map("invoice_items")
+}
+
+model StockMovement {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id        String
+  company           Company       @relation(fields: [company_id], references: [id])
+  financial_year_id String        @db.Uuid
+  financial_year    FinancialYear @relation(fields: [financial_year_id], references: [id])
+
+  voucher_id String  @db.Uuid
+  voucher    Voucher @relation(fields: [voucher_id], references: [id])
+
+  invoice_item_id String?      @db.Uuid
+  invoice_item    InvoiceItem? @relation(fields: [invoice_item_id], references: [id])
+
+  stock_item_id String    @db.Uuid
+  stock_item    StockItem @relation(fields: [stock_item_id], references: [id])
+
+  godown_id String? @db.Uuid
+  godown    Godown? @relation(fields: [godown_id], references: [id])
+
+  movement_date DateTime @db.Date
+  movement_type String   @db.VarChar(20)
+
+  in_qty  Decimal @default(0) @db.Decimal(19, 4)
+  out_qty Decimal @default(0) @db.Decimal(19, 4)
+  rate    Decimal @default(0) @db.Decimal(19, 4)
+  value   Decimal @default(0) @db.Decimal(19, 4)
+
+  balance_qty   Decimal @db.Decimal(19, 4)
+  balance_value Decimal @db.Decimal(19, 4)
+
+  created_at DateTime @default(now()) @db.Timestamptz
+
+  @@map("stock_movements")
+}
+
+model VoucherBillAllocation {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  company_id String
+  company    Company @relation(fields: [company_id], references: [id])
+
+  ledger_id String @db.Uuid
+  ledger    Ledger @relation(fields: [ledger_id], references: [id])
+
+  voucher_id String  @db.Uuid
+  voucher    Voucher @relation(fields: [voucher_id], references: [id])
+
+  journal_entry_id String       @db.Uuid
+  journal_entry    JournalEntry @relation(fields: [journal_entry_id], references: [id])
+
+  bill_number      String   @db.VarChar(100)
+  bill_date        DateTime @db.Date
+  bill_amount      Decimal  @db.Decimal(19, 4)
+  allocated_amount Decimal  @db.Decimal(19, 4)
+  pending_amount   Decimal  @db.Decimal(19, 4)
+  bill_type        String   @db.Char(2) // DR or CR
+
+  settled_against_id String?                 @db.Uuid
+  settled_against    VoucherBillAllocation?  @relation("BillSettlement", fields: [settled_against_id], references: [id])
+  settlements        VoucherBillAllocation[] @relation("BillSettlement")
+
+  is_fully_settled Boolean   @default(false)
+  settled_at       DateTime? @db.Timestamptz
+
+  due_date   DateTime? @db.Date
+  created_at DateTime  @default(now()) @db.Timestamptz
+  updated_at DateTime  @default(now()) @db.Timestamptz
+
+  @@index([ledger_id])
+  @@index([company_id, ledger_id])
+  @@map("voucher_bill_allocations")
+}
