@@ -345,6 +345,20 @@ export type Task = {
   updated_at: string;
   completed_at?: string;
   is_deleted: boolean;
+  // Computed / joined
+  checklist_total?: number;
+  checklist_done?: number;
+  comment_count?: number;
+};
+
+export type TaskChecklistItem = {
+  id: string;
+  task_id: string;
+  title: string;
+  is_done: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
 };
 
 export type TaskComment = {
@@ -352,8 +366,19 @@ export type TaskComment = {
   task_id: string;
   author_id: string;
   author_name?: string;
-  author_avatar?: string;
   content: string;
+  is_deleted: boolean;
+  created_at: string;
+};
+
+export type TaskActivity = {
+  id: string;
+  task_id: string;
+  actor_id: string;
+  actor_name?: string;
+  action: string;
+  old_value?: string;
+  new_value?: string;
   created_at: string;
 };
 

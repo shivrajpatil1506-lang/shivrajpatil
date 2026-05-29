@@ -2,71 +2,142 @@
 
 import React, { useState } from "react";
 import PageHeader from "@/components/shared/PageHeader";
-import { Search } from "lucide-react";
 import KanbanBoard from "@/components/features/KanbanBoard";
 import TaskModal from "@/components/features/TaskModal";
-import { getTasks } from "@/app/actions/tasks";
+import TaskDetailPanel from "@/components/features/TaskDetailPanel";
+import TaskFilters from "@/components/features/TaskFilters";
+import TaskStats from "@/components/features/TaskStats";
+import TaskListView from "@/components/features/TaskListView";
+import { getTasks, getTaskById } from "@/app/actions/tasks";
 import { Task } from "@/lib/types";
 
-export default function MyWorkClient({ 
-  initialTasks, 
-  employees, 
-  isAdminOrHR, 
-  currentUserId 
-}: { 
-  initialTasks: Task[], 
-  employees: any[], 
-  isAdminOrHR: boolean, 
-  currentUserId: string 
+export default function MyWorkClient({
+  initialTasks,
+  employees,
+  isAdminOrHR,
+  currentUserId,
+}: {
+  initialTasks: Task[];
+  employees: any[];
+  isAdminOrHR: boolean;
+  currentUserId: string;
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("All Priorities");
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  
+  // Detail panel loading state
+  const [fullTask, setFullTask] = useState<Task | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // Filters state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("All");
+  const [assigneeFilter, setAssigneeFilter] = useState("All");
+  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 
   const refreshTasks = async () => {
     const freshTasks = await getTasks();
     setTasks(freshTasks);
   };
 
+  const handleTaskClick = async (task: Task) => {
+    setIsDetailOpen(true);
+    setFullTask(task); // optimistic basic load
+    const full = await getTaskById(task.id);
+    if (full) {
+      setFullTask(full.task); // replace with full counts
+    }
+  };
+
+  const handleTaskDetailClose = () => {
+    setIsDetailOpen(false);
+    setTimeout(() => setFullTask(null), 300); // clear after animation
+  };
+
+  // Filter tasks based on all active filters
+  const filteredTasks = tasks.filter((t) => {
+    const q = searchQuery.toLowerCase();
+    const matchSearch =
+      !q ||
+      t.title.toLowerCase().includes(q) ||
+      (t.description || "").toLowerCase().includes(q);
+    const matchPriority =
+      priorityFilter === "All" ||
+      t.priority.toLowerCase() === priorityFilter.toLowerCase();
+    const matchAssignee = 
+      assigneeFilter === "All" || 
+      t.assigned_to === assigneeFilter;
+
+    return matchSearch && matchPriority && matchAssignee;
+  });
+
+  const overdueCount = tasks.filter(t => {
+    if (!t.due_date || t.status === "done") return false;
+    return new Date(t.due_date) < new Date(new Date().setHours(0,0,0,0));
+  }).length;
+
   return (
     <div className="animate-fade-in">
-      <PageHeader 
-        title="My Work" 
-        description="Kanban task board" 
-        actions={<TaskModal employees={employees} currentUserId={currentUserId} onTaskSaved={refreshTasks} />} 
-      />
-      
-      <div className="flex items-center gap-3 mb-6">
-        <div className="relative max-w-xs flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-          <input 
-            type="text" 
-            placeholder="Search tasks..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm border border-neutral-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500 outline-none" 
+      <PageHeader
+        title="My Work"
+        description="Manage your tasks and track team progress"
+        actions={
+          <TaskModal
+            employees={employees}
+            currentUserId={currentUserId}
+            onTaskSaved={refreshTasks}
           />
-        </div>
-        <select 
-          value={priorityFilter}
-          onChange={(e) => setPriorityFilter(e.target.value)}
-          className="px-3 py-2 text-sm border border-neutral-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500 outline-none"
-        >
-          <option>All Priorities</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </select>
-      </div>
+        }
+      />
 
-      <KanbanBoard 
-        initialTasks={tasks} 
-        searchQuery={searchQuery} 
-        priorityFilter={priorityFilter} 
+      <TaskStats tasks={tasks} />
+
+      <TaskFilters
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        priorityFilter={priorityFilter}
+        setPriorityFilter={setPriorityFilter}
+        assigneeFilter={assigneeFilter}
+        setAssigneeFilter={setAssigneeFilter}
+        employees={employees}
         isAdminOrHR={isAdminOrHR}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        taskCount={filteredTasks.length}
+        overdueCount={overdueCount}
+      />
+
+      {viewMode === "kanban" ? (
+        <KanbanBoard
+          initialTasks={filteredTasks}
+          searchQuery="" // Already filtered above
+          priorityFilter="All Priorities" // Already filtered above
+          isAdminOrHR={isAdminOrHR}
+          employees={employees}
+          currentUserId={currentUserId}
+          onTaskChange={refreshTasks}
+          onTaskClick={handleTaskClick}
+        />
+      ) : (
+        <TaskListView
+          tasks={filteredTasks}
+          employees={employees}
+          currentUserId={currentUserId}
+          onTaskClick={handleTaskClick}
+        />
+      )}
+
+      <TaskDetailPanel
+        task={fullTask}
+        isOpen={isDetailOpen}
+        onClose={handleTaskDetailClose}
         employees={employees}
         currentUserId={currentUserId}
-        onTaskChange={refreshTasks}
+        isAdminOrHR={isAdminOrHR}
+        onTaskChange={() => {
+          refreshTasks();
+          if (fullTask) handleTaskClick(fullTask); // reload full task details
+        }}
       />
     </div>
   );
