@@ -2,7 +2,6 @@
 
 import React from "react";
 import { ArrowLeft, Download, FileText, Table } from "lucide-react";
-import { exportToExcel, exportToPDF } from "@/lib/export-utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -16,11 +15,13 @@ interface ReportViewerProps {
 export default function ReportViewer({ title, description, data, backLink }: ReportViewerProps) {
   const router = useRouter();
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
+    const { exportToExcel } = await import("@/lib/export-utils");
     exportToExcel(data, title.replace(/\s+/g, '_').toLowerCase());
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
+    const { exportToPDF } = await import("@/lib/export-utils");
     exportToPDF(data, title, title.replace(/\s+/g, '_').toLowerCase());
   };
 

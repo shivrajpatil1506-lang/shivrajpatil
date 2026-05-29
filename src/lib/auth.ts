@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { adminAuth } from "@/lib/firebase/admin";
 import { db } from "@/lib/db";
+import { cache } from "react";
 
 export type AuthUser = {
   uid: string;
@@ -12,7 +13,7 @@ export type AuthUser = {
   name: string;
 };
 
-export async function getCurrentUser(): Promise<AuthUser | null> {
+export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("session")?.value;
@@ -22,7 +23,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     }
 
     // Verify session
-    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
+    const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, false);
     
     if (!decodedClaims.email) return null;
 
@@ -114,4 +115,4 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     console.error("Auth verification failed:", error);
     return null;
   }
-}
+});
