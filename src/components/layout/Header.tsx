@@ -62,7 +62,7 @@ export default function Header({ title }: HeaderProps) {
           >
             <Bell className="w-[18px] h-[18px]" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-danger-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
                 {unreadCount}
               </span>
             )}
@@ -128,7 +128,7 @@ export default function Header({ title }: HeaderProps) {
             onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
             className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-xs font-semibold">
+            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-xs font-semibold">
               {user ? getInitials(user.name) : "U"}
             </div>
             <div className="hidden sm:block text-left">

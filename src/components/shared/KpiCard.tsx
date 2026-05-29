@@ -14,8 +14,7 @@ type KpiCardProps = {
 
 export default function KpiCard({ title, value, trend, icon: Icon, accentColor }: KpiCardProps) {
   return (
-    <div className="kpi-card group" style={{ ["--accent" as string]: accentColor }}>
-      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{ background: accentColor }} />
+    <div className="kpi-card group">
       <div className="flex items-start justify-between">
         <div className="space-y-1">
           <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide">{title}</p>
@@ -31,7 +30,7 @@ export default function KpiCard({ title, value, trend, icon: Icon, accentColor }
           )}
         </div>
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110"
+          className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors group-hover:bg-neutral-50"
           style={{ background: `${accentColor}15` }}
         >
           <Icon className="w-5 h-5" style={{ color: accentColor }} />

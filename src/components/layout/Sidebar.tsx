@@ -39,25 +39,24 @@ export default function Sidebar({ navItems }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 h-screen flex flex-col z-40 transition-all duration-300 ease-in-out",
+        "fixed left-0 top-0 h-screen flex flex-col z-40 transition-all duration-300 ease-in-out bg-white border-r border-neutral-200",
         sidebarCollapsed ? "w-[72px]" : "w-[260px]"
       )}
-      style={{ background: "#0A1628" }}
     >
       {/* Logo */}
       <div className={cn(
-        "flex items-center gap-3 px-4 h-16 border-b border-white/10 shrink-0",
+        "flex items-center gap-3 px-4 h-16 border-b border-neutral-200 shrink-0",
         sidebarCollapsed && "justify-center px-2"
       )}>
-        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-white/10 flex items-center justify-center">
+        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-neutral-100 flex items-center justify-center border border-neutral-200">
           <Image src="/logo.png" alt="GB Infra" width={36} height={36} className="object-contain" />
         </div>
         {!sidebarCollapsed && (
           <div className="animate-fade-in">
-            <h1 className="text-white font-bold text-lg leading-none" style={{ fontFamily: "var(--font-heading)" }}>
+            <h1 className="text-neutral-900 font-bold text-lg leading-none" style={{ fontFamily: "var(--font-heading)" }}>
               GB Infra
             </h1>
-            <p className="text-white/40 text-[10px] mt-0.5">Operations Platform</p>
+            <p className="text-neutral-500 text-[10px] mt-0.5">Operations Platform</p>
           </div>
         )}
       </div>
@@ -75,17 +74,17 @@ export default function Sidebar({ navItems }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                 isActive
-                  ? "bg-white/10 text-white border-l-[3px] border-amber-400"
-                  : "text-white/60 hover:text-white hover:bg-white/5 border-l-[3px] border-transparent",
+                  ? "sidebar-active"
+                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50",
                 sidebarCollapsed && "justify-center px-2"
               )}
             >
-              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-amber-400" : "text-white/50 group-hover:text-white/80")} />
+              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary-500" : "text-neutral-400 group-hover:text-neutral-600")} />
               {!sidebarCollapsed && (
                 <span className="animate-fade-in">{item.label}</span>
               )}
               {!sidebarCollapsed && item.badge && item.badge > 0 && (
-                <span className="ml-auto bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+                <span className="ml-auto bg-primary-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                   {item.badge}
                 </span>
               )}
@@ -102,27 +101,27 @@ export default function Sidebar({ navItems }: SidebarProps) {
       {/* Collapse Toggle */}
       <button
         onClick={toggleSidebar}
-        className="mx-2 mb-2 p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
+        className="mx-2 mb-2 p-2 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-center"
       >
         {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
 
       {/* User */}
       <div className={cn(
-        "border-t border-white/10 p-3 flex items-center gap-3",
+        "border-t border-neutral-200 p-3 flex items-center gap-3",
         sidebarCollapsed && "justify-center px-2"
       )}>
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-sm font-semibold shrink-0">
+        <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-sm font-semibold shrink-0">
           {user ? getInitials(user.name) : "GB"}
         </div>
         {!sidebarCollapsed && user && (
           <div className="flex-1 min-w-0 animate-fade-in">
-            <p className="text-white text-sm font-medium truncate">{user.name}</p>
-            <p className="text-white/40 text-xs capitalize">{user.role}</p>
+            <p className="text-neutral-900 text-sm font-medium truncate">{user.name}</p>
+            <p className="text-neutral-500 text-xs capitalize">{user.role}</p>
           </div>
         )}
         {!sidebarCollapsed && (
-          <button onClick={handleLogout} className="text-white/30 hover:text-white/70 transition-colors p-1" title="Log Out">
+          <button onClick={handleLogout} className="text-neutral-400 hover:text-danger-500 transition-colors p-1" title="Log Out">
             <LogOut className="w-4 h-4" />
           </button>
         )}

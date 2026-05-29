@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ==========================================
@@ -7,76 +7,76 @@
 
 @theme inline {
   /* ---- Primary Brand ---- */
-  --color-primary-900: #0A1628;
-  --color-primary-800: #102040;
-  --color-primary-700: #1A3358;
-  --color-primary-600: #1E4D8C;
-  --color-primary-500: #2563EB;
-  --color-primary-400: #3B82F6;
-  --color-primary-300: #60A5FA;
-  --color-primary-200: #93C5FD;
-  --color-primary-100: #DBEAFE;
-  --color-primary-50: #EFF6FF;
+  --color-primary-900: #174ea6;
+  --color-primary-800: #1a73e8;
+  --color-primary-700: #1967d2;
+  --color-primary-600: #1a73e8;
+  --color-primary-500: #4184f3;
+  --color-primary-400: #669df6;
+  --color-primary-300: #8ab4f8;
+  --color-primary-200: #aecbfa;
+  --color-primary-100: #d2e3fc;
+  --color-primary-50: #e8f0fe;
 
   /* ---- Accent / Amber ---- */
-  --color-accent-500: #F59E0B;
-  --color-accent-400: #FBBF24;
-  --color-accent-300: #FCD34D;
-  --color-accent-100: #FEF3C7;
+  --color-accent-500: #f9ab00;
+  --color-accent-400: #fbbc04;
+  --color-accent-300: #fcd230;
+  --color-accent-100: #fef7e0;
 
   /* ---- Success ---- */
-  --color-success-600: #16A34A;
-  --color-success-500: #22C55E;
-  --color-success-100: #DCFCE7;
+  --color-success-600: #137333;
+  --color-success-500: #4caf50;
+  --color-success-100: #e6f4ea;
 
   /* ---- Danger ---- */
-  --color-danger-600: #DC2626;
-  --color-danger-500: #EF4444;
-  --color-danger-100: #FEE2E2;
+  --color-danger-600: #c5221f;
+  --color-danger-500: #ea4335;
+  --color-danger-100: #fce8e6;
 
   /* ---- Warning ---- */
-  --color-warning-500: #F97316;
-  --color-warning-100: #FFEDD5;
+  --color-warning-500: #fb8c00;
+  --color-warning-100: #feefe3;
 
   /* ---- Neutrals ---- */
-  --color-neutral-950: #030712;
-  --color-neutral-900: #111827;
-  --color-neutral-800: #1F2937;
-  --color-neutral-700: #374151;
-  --color-neutral-600: #4B5563;
-  --color-neutral-500: #6B7280;
-  --color-neutral-400: #9CA3AF;
-  --color-neutral-300: #D1D5DB;
-  --color-neutral-200: #E5E7EB;
-  --color-neutral-100: #F3F4F6;
-  --color-neutral-50: #F9FAFB;
+  --color-neutral-950: #202124;
+  --color-neutral-900: #3c4043;
+  --color-neutral-800: #5f6368;
+  --color-neutral-700: #80868b;
+  --color-neutral-600: #9aa0a6;
+  --color-neutral-500: #bdc1c6;
+  --color-neutral-400: #dadce0;
+  --color-neutral-300: #e8eaed;
+  --color-neutral-200: #f1f3f4;
+  --color-neutral-100: #f8f9fa;
+  --color-neutral-50: #ffffff;
 
   /* ---- Semantic Colors ---- */
-  --color-background: #F0F4F8;
-  --color-foreground: #111827;
-  --color-card: #FFFFFF;
-  --color-card-foreground: #111827;
-  --color-sidebar: #0A1628;
-  --color-sidebar-foreground: #FFFFFF;
-  --color-muted: #F3F4F6;
-  --color-muted-foreground: #6B7280;
-  --color-border: #E5E7EB;
+  --color-background: #f8f9fa;
+  --color-foreground: #3c4043;
+  --color-card: #ffffff;
+  --color-card-foreground: #3c4043;
+  --color-sidebar: #ffffff;
+  --color-sidebar-foreground: #5f6368;
+  --color-muted: #f1f3f4;
+  --color-muted-foreground: #80868b;
+  --color-border: #e8eaed;
 
   /* ---- Fonts ---- */
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-heading: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
 
   /* ---- Radius ---- */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
 
   /* ---- Shadows ---- */
-  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-elevated: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --shadow-card: none;
+  --shadow-elevated: none;
+  --shadow-lg: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 
@@ -126,14 +126,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar-active {
-  border-left: 3px solid var(--color-accent-500);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-primary-50);
+  color: var(--color-primary-500);
 }
 
 .kpi-card {
   background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: 1.25rem 1.5rem;
   position: relative;
   overflow: hidden;
@@ -141,18 +141,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .kpi-card:hover {
-  box-shadow: var(--shadow-elevated);
-  transform: translateY(-1px);
-}
-
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  border-color: var(--color-neutral-400);
 }
 
 /* ---- Status Badge Variants ---- */
