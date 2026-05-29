@@ -14,14 +14,14 @@ export type AuthUser = {
 };
 
 export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get("session")?.value;
+
+  if (!sessionCookie) {
+    return null;
+  }
+
   try {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("session")?.value;
-
-    if (!sessionCookie) {
-      return null;
-    }
-
     // Verify session
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, false);
     
