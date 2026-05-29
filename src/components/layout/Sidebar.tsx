@@ -74,12 +74,12 @@ export default function Sidebar({ navItems }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                 isActive
-                  ? "sidebar-active"
-                  : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50",
+                  ? "sidebar-active font-semibold"
+                  : "text-neutral-800 hover:text-neutral-900 hover:bg-neutral-50",
                 sidebarCollapsed && "justify-center px-2"
               )}
             >
-              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary-500" : "text-neutral-400 group-hover:text-neutral-600")} />
+              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary-500" : "text-neutral-600 group-hover:text-neutral-800")} />
               {!sidebarCollapsed && (
                 <span className="animate-fade-in">{item.label}</span>
               )}
@@ -101,7 +101,7 @@ export default function Sidebar({ navItems }: SidebarProps) {
       {/* Collapse Toggle */}
       <button
         onClick={toggleSidebar}
-        className="mx-2 mb-2 p-2 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-center"
+        className="mx-2 mb-2 p-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-center"
       >
         {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
@@ -117,11 +117,11 @@ export default function Sidebar({ navItems }: SidebarProps) {
         {!sidebarCollapsed && user && (
           <div className="flex-1 min-w-0 animate-fade-in">
             <p className="text-neutral-900 text-sm font-medium truncate">{user.name}</p>
-            <p className="text-neutral-500 text-xs capitalize">{user.role}</p>
+            <p className="text-neutral-600 text-xs capitalize">{user.role}</p>
           </div>
         )}
         {!sidebarCollapsed && (
-          <button onClick={handleLogout} className="text-neutral-400 hover:text-danger-500 transition-colors p-1" title="Log Out">
+          <button onClick={handleLogout} className="text-neutral-500 hover:text-danger-500 transition-colors p-1" title="Log Out">
             <LogOut className="w-4 h-4" />
           </button>
         )}

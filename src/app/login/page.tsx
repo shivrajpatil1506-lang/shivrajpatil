@@ -70,109 +70,86 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-        
-        {/* Left Side - Brand / Visual */}
-        <div className="w-full md:w-5/12 bg-emerald-900 p-10 flex flex-col justify-between relative overflow-hidden hidden md:flex">
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 text-white mb-16">
-              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-white" />
-              </div>
-              <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>GB Infra</h1>
-            </div>
-            
-            <h2 className="text-4xl font-bold text-white leading-tight mb-4" style={{ fontFamily: "var(--font-heading)" }}>
-              Build the future,<br />Manage with ease.
-            </h2>
-            <p className="text-emerald-100 text-lg">
-              Enterprise resource planning for Pune's premier real estate developers.
-            </p>
-          </div>
-          
-          <div className="relative z-10 text-emerald-200/80 text-sm">
-            &copy; {new Date().getFullYear()} GB Infra Pvt. Ltd.
-          </div>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      
+      {/* Top Logo */}
+      <div className="mb-8 flex flex-col items-center">
+        <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center border border-primary-200 mb-4">
+          <Building2 className="w-6 h-6 text-primary-600" />
         </div>
-
-        {/* Right Side - Form */}
-        <div className="w-full md:w-7/12 p-8 md:p-16 flex flex-col justify-center">
-          <div className="md:hidden flex items-center gap-3 text-emerald-900 mb-8">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-emerald-700" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "var(--font-heading)" }}>GB Infra</h1>
-          </div>
-
-          <div className="mb-10">
-            <h2 className="text-3xl font-bold text-neutral-900 mb-2" style={{ fontFamily: "var(--font-heading)" }}>
-              {isSignUp ? "Create Account" : "Welcome back"}
-            </h2>
-            <p className="text-neutral-500">
-              {isSignUp ? "Enter your work email to register." : "Please enter your details to sign in."}
-            </p>
-          </div>
-
-          {errorMsg && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium">
-              {errorMsg}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Email address</label>
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
-                placeholder="you@gbinfra.in"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Password</label>
-              <input 
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-neutral-300 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button 
-              type="submit"
-              disabled={isLoading}
-              className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-70 mt-6"
-            >
-              {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                <>{isSignUp ? "Create Account" : "Sign In"} <ArrowRight className="w-4 h-4" /></>
-              )}
-            </button>
-            
-            <div className="text-center mt-6">
-              <button 
-                type="button" 
-                onClick={() => { setIsSignUp(!isSignUp); setErrorMsg(""); }} 
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-              >
-                {isSignUp ? "Already have an account? Sign in" : "New employee? Create account"}
-              </button>
-            </div>
-          </form>
-
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-neutral-900" style={{ fontFamily: "var(--font-heading)" }}>
+          GB Infra
+        </h1>
+        <p className="text-neutral-500 text-sm mt-1">Operations Platform</p>
       </div>
+
+      {/* Main Login Card */}
+      <div className="w-full max-w-md bg-card border border-border rounded-sm p-8 shadow-sm">
+        
+        <h2 className="text-xl font-semibold text-neutral-900 mb-6 text-center">
+          {isSignUp ? "Register an account" : "Login to your account"}
+        </h2>
+
+        {errorMsg && (
+          <div className="mb-6 p-3 bg-danger-50 text-danger-600 border border-danger-100 rounded-sm text-sm font-medium text-center">
+            {errorMsg}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-medium text-neutral-600 mb-1.5 uppercase tracking-wide">
+              Email address
+            </label>
+            <input 
+              type="email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2.5 bg-white border border-border rounded-sm focus:outline-none focus:border-primary-500 transition-colors text-sm text-neutral-900 placeholder:text-neutral-400"
+              placeholder="you@gbinfra.in"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-xs font-medium text-neutral-600 mb-1.5 uppercase tracking-wide">
+              Password
+            </label>
+            <input 
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2.5 bg-white border border-border rounded-sm focus:outline-none focus:border-primary-500 transition-colors text-sm text-neutral-900 placeholder:text-neutral-400"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <button 
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-2.5 px-4 bg-primary-500 hover:bg-primary-600 text-white rounded-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-70 mt-4 text-sm"
+          >
+            {isLoading ? (
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              <>{isSignUp ? "Register" : "Login"} <ArrowRight className="w-3.5 h-3.5" /></>
+            )}
+          </button>
+        </form>
+      </div>
+
+      {/* Footer Links */}
+      <div className="mt-6 text-center">
+        <button 
+          type="button" 
+          onClick={() => { setIsSignUp(!isSignUp); setErrorMsg(""); }} 
+          className="text-sm text-primary-600 hover:text-primary-700 font-medium transition-colors"
+        >
+          {isSignUp ? "Already have an account? Login here" : "New employee? Register here"}
+        </button>
+      </div>
+      
     </div>
   );
 }
