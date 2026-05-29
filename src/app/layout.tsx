@@ -3,6 +3,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/ui/Toast";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { getCurrentUser } from "@/lib/auth";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "GB Infra — Operations Management Platform",
@@ -20,6 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {children}
           </AuthProvider>
         </ToastProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
