@@ -10,11 +10,22 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase only if it hasn't been initialized already
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+let app;
+try {
+  // Initialize Firebase only if it hasn't been initialized already and we have an API key
+  if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  } else {
+    console.warn("Firebase client initialization skipped: Missing NEXT_PUBLIC_FIREBASE_API_KEY.");
+  }
+} catch (e) {
+  console.error("Firebase client initialization error", e);
+}
 
-const auth = getAuth(app);
+const auth = app ? getAuth(app) : ({} as any);
 // Optional: Ensure persistence is set to local (default in web)
-setPersistence(auth, browserLocalPersistence).catch(console.error);
+if (app) {
+  setPersistence(auth, browserLocalPersistence).catch(console.error);
+}
 
 export { app, auth };
