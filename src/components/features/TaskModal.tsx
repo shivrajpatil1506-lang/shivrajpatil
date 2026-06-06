@@ -27,6 +27,7 @@ interface TaskModalProps {
   currentUserId?: string;
   existingTask?: Task;
   trigger?: React.ReactNode;
+  hideTrigger?: boolean;
   onTaskSaved?: () => void;
   isOpen?: boolean;
   setIsOpen?: (open: boolean) => void;
@@ -36,7 +37,8 @@ export default function TaskModal({
   employees, 
   currentUserId, 
   existingTask, 
-  trigger, 
+  trigger,
+  hideTrigger = false,
   onTaskSaved, 
   isOpen, 
   setIsOpen 
@@ -147,7 +149,9 @@ export default function TaskModal({
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      {trigger ? <Dialog.Trigger asChild>{trigger}</Dialog.Trigger> : <Dialog.Trigger asChild>{defaultTrigger}</Dialog.Trigger>}
+      {!hideTrigger && (
+        trigger ? <Dialog.Trigger asChild>{trigger}</Dialog.Trigger> : <Dialog.Trigger asChild>{defaultTrigger}</Dialog.Trigger>
+      )}
       
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 animate-in fade-in" />

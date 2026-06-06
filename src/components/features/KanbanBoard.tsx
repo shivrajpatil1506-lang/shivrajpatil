@@ -573,6 +573,7 @@ export default function KanbanBoard({
         existingTask={editingTask || undefined}
         employees={employees}
         currentUserId={currentUserId}
+        hideTrigger={true}
         onTaskSaved={() => {
           setIsEditModalOpen(false);
           if (onTaskChange) onTaskChange();
