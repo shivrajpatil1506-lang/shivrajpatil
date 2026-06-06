@@ -8,6 +8,7 @@ import { useUIStore } from "@/stores/ui-store";
 import { formatDistanceToNow } from "date-fns";
 import { getNotifications, markNotificationRead } from "@/app/actions/notifications";
 import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 
 type HeaderProps = {
   title: string;
@@ -146,8 +147,8 @@ export default function Header({ title }: HeaderProps) {
                   <p className="text-sm font-medium text-neutral-900">{user?.name}</p>
                   <p className="text-xs text-neutral-500">{user?.email}</p>
                 </div>
-                <button className="w-full px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 transition-colors">Profile</button>
-                <button className="w-full px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 transition-colors">Settings</button>
+                <Link href="/profile" className="block w-full px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 transition-colors" onClick={() => setShowUserMenu(false)}>Profile</Link>
+                <Link href="/settings" className="block w-full px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 transition-colors" onClick={() => setShowUserMenu(false)}>Settings</Link>
                 <div className="border-t border-neutral-100" />
                 <button 
                   onClick={async () => {
