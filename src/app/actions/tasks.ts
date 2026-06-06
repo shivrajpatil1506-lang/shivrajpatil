@@ -77,7 +77,7 @@ export async function getTasks(): Promise<Task[]> {
 
     const tasks = await db.task.findMany({
       where: whereClause,
-      orderBy: [{ sort_order: "asc" }, { due_date: "asc" }, { created_at: "desc" }],
+      orderBy: [{ due_date: "asc" }, { created_at: "desc" }],
       include: {
         _count: {
           select: {
@@ -303,7 +303,7 @@ export async function updateTaskStatus(id: string, newStatus: string) {
   }
 }
 
-export async function reorderTasks(tasks: { id: string; sort_order: number; status: string }[]) {
+export async function reorderTasks(tasks: { id: string; sort_order?: number; status: string }[]) {
   try {
     const user = await getCurrentUser();
     if (!user) return { success: false, error: "Unauthorized" };
@@ -313,7 +313,7 @@ export async function reorderTasks(tasks: { id: string; sort_order: number; stat
       tasks.map((task) =>
         db.task.update({
           where: { id: task.id },
-          data: { sort_order: task.sort_order, status: task.status },
+          data: { status: task.status },
         })
       )
     );
