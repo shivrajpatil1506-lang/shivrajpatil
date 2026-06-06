@@ -443,8 +443,8 @@ export default function KanbanBoard({
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = active.id;
-    const overId = over.id;
+    const activeId = active.id as string;
+    const overId = over.id as string;
 
     if (activeId === overId) return;
 
@@ -464,15 +464,11 @@ export default function KanbanBoard({
       const activeStatus = activeTask.status;
       const overStatus = overTask ? overTask.status : (overId as TaskStatus);
 
-      // We only care about moving across columns in DragOver
+      // Moving to a different column visually
       if (activeStatus !== overStatus) {
         const newTasks = [...prev];
-        // Move to the new status
-        newTasks[activeIndex] = { ...newTasks[activeIndex], status: overStatus };
-        
-        // Push below the over item, or to the end if over is a column
-        const finalOverIndex = overIndex >= 0 ? overIndex : newTasks.length - 1;
-        return arrayMove(newTasks, activeIndex, finalOverIndex);
+        newTasks[activeIndex] = { ...activeTask, status: overStatus };
+        return newTasks;
       }
 
       return prev;
@@ -484,38 +480,49 @@ export default function KanbanBoard({
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = active.id;
-    const overId = over.id;
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    const activeTask = tasks.find(t => t.id === activeId);
+    if (!activeTask) return;
+
+    const oldStatus = activeTask.status;
 
     setTasks((prev) => {
       const activeIndex = prev.findIndex((t) => t.id === activeId);
       const overIndex = prev.findIndex((t) => t.id === overId);
 
-      let newTasks = prev;
+      let newTasks = [...prev];
 
-      if (activeIndex !== overIndex && overIndex !== -1) {
-        newTasks = arrayMove(newTasks, activeIndex, overIndex);
+      // Handle drop into empty column
+      if (overIndex === -1 && COLUMNS.includes(overId as any)) {
+         newTasks[activeIndex] = { ...newTasks[activeIndex], status: overId as TaskStatus };
+      } 
+      // Handle drop within same column or onto an item in another column
+      else if (activeIndex !== overIndex && overIndex !== -1) {
+         newTasks = arrayMove(newTasks, activeIndex, overIndex);
       }
-
-      const movedTask = newTasks.find(t => t.id === activeId);
-      if (!movedTask) return newTasks;
-
-      const updatedColumnTasks = newTasks.filter(t => t.status === movedTask.status);
-      const reorderPayload = updatedColumnTasks.map((t, i) => ({
-        id: t.id,
-        sort_order: i,
-        status: t.status
-      }));
-
-      // Fire API in background
-      reorderTasks(reorderPayload).catch(e => {
-        console.error("Failed to reorder tasks", e);
-        toastError("Error", "Failed to save task order.");
-      });
 
       return newTasks;
     });
-  }, [toastError]);
+
+    // Determine the final status after state update
+    // We check the event.over.id to see if it's a column or a task
+    const overTask = tasks.find(t => t.id === overId);
+    const finalStatus = overTask ? overTask.status : (overId as TaskStatus);
+
+    // If status changed, we MUST update the database
+    if (oldStatus !== finalStatus && COLUMNS.includes(finalStatus as any)) {
+      updateTaskStatus(activeId, finalStatus).then((res) => {
+         if (res.success && onTaskChange) {
+           onTaskChange();
+         }
+      }).catch((err) => {
+         console.error("Failed to update status on drag end", err);
+         toastError("Error", "Failed to update task status.");
+      });
+    }
+  }, [tasks, onTaskChange, toastError]);
 
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
     const task = tasks.find((t) => t.id === taskId);
