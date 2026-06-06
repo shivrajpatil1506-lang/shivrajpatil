@@ -313,6 +313,7 @@ model Task {
   tags                 String?
   company_id           String?
   site_id              String?
+  sort_order           Int       @default(0)
   is_recurring         Boolean   @default(false)
   recurrence_type      String?
   recurrence_parent_id String?

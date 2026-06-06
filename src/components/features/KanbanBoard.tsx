@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -9,16 +9,17 @@ import {
   useSensor,
   useSensors,
   useDroppable,
-  useDraggable,
-  closestCenter,
+  closestCorners,
   type DragEndEvent,
   type DragStartEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn, getInitials, formatDate } from "@/lib/utils";
 import { TASK_STATUS_LABELS } from "@/lib/constants";
 import { Task } from "@/lib/types";
-import { updateTaskStatus, deleteTask } from "@/app/actions/tasks";
+import { updateTaskStatus, deleteTask, reorderTasks } from "@/app/actions/tasks";
 import {
   RotateCw, Calendar, MoreHorizontal, CheckCircle2,
   ArrowRightCircle, CircleDashed, Trash2, Pencil,
@@ -111,9 +112,9 @@ function DroppableColumn({
   );
 }
 
-// ── Draggable Task Card ───────────────────────────────────────────────────────
+// ── Sortable Task Card ───────────────────────────────────────────────────────
 
-function DraggableTaskCard({
+function SortableTaskCard({
   task, employees, currentUserId, isAdminOrHR,
   onStatusChange, onDelete, onEdit, onCardClick, isDragOverlay,
 }: {
@@ -129,14 +130,17 @@ function DraggableTaskCard({
 }) {
   const canDrag = isAdminOrHR || task.assigned_to === currentUserId;
 
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     disabled: !canDrag,
     data: { task },
   });
 
   const style = transform
-    ? { transform: CSS.Translate.toString(transform) }
+    ? { 
+        transform: CSS.Transform.toString(transform),
+        transition: isDragOverlay ? undefined : transition 
+      }
     : undefined;
 
   const overdue = isOverdue(task);
@@ -397,32 +401,36 @@ export default function KanbanBoard({
 
   React.useEffect(() => { setTasks(initialTasks); }, [initialTasks]);
 
-  // DnD sensors — pointer (mouse/touch) + keyboard
+  // DnD sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 }, // Avoid accidental drags on click
+      activationConstraint: { distance: 5 },
     }),
     useSensor(KeyboardSensor)
   );
 
   // ── Filter ──────────────────────────────────────────────────────────────
 
-  const filteredTasks = tasks.filter((t) => {
-    const q = searchQuery.toLowerCase();
-    const matchSearch =
-      !q ||
-      t.title.toLowerCase().includes(q) ||
-      (t.description || "").toLowerCase().includes(q);
-    const matchPriority =
-      priorityFilter === "All Priorities" ||
-      t.priority.toLowerCase() === priorityFilter.toLowerCase();
-    return matchSearch && matchPriority;
-  });
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((t) => {
+      const q = searchQuery.toLowerCase();
+      const matchSearch =
+        !q ||
+        t.title.toLowerCase().includes(q) ||
+        (t.description || "").toLowerCase().includes(q);
+      const matchPriority =
+        priorityFilter === "All Priorities" ||
+        t.priority.toLowerCase() === priorityFilter.toLowerCase();
+      return matchSearch && matchPriority;
+    });
+  }, [tasks, searchQuery, priorityFilter]);
 
-  const tasksByStatus = COLUMNS.reduce((acc, status) => {
-    acc[status] = filteredTasks.filter((t) => t.status === status);
-    return acc;
-  }, {} as Record<string, Task[]>);
+  const tasksByStatus = useMemo(() => {
+    return COLUMNS.reduce((acc, status) => {
+      acc[status] = filteredTasks.filter((t) => t.status === status);
+      return acc;
+    }, {} as Record<string, Task[]>);
+  }, [filteredTasks]);
 
   // ── DnD handlers ────────────────────────────────────────────────────────
 
@@ -431,44 +439,83 @@ export default function KanbanBoard({
     if (task) setActiveTask(task);
   }, [tasks]);
 
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    setTasks((prev) => {
+      const activeIndex = prev.findIndex((t) => t.id === activeId);
+      const overIndex = prev.findIndex((t) => t.id === overId);
+
+      const activeTask = prev[activeIndex];
+      if (!activeTask) return prev;
+
+      // Ensure permission check handles early visual moving
+      if (!isAdminOrHR && activeTask.assigned_to !== currentUserId) {
+         return prev;
+      }
+
+      const overTask = prev[overIndex];
+      const activeStatus = activeTask.status;
+      const overStatus = overTask ? overTask.status : (overId as TaskStatus);
+
+      // We only care about moving across columns in DragOver
+      if (activeStatus !== overStatus) {
+        const newTasks = [...prev];
+        // Move to the new status
+        newTasks[activeIndex] = { ...newTasks[activeIndex], status: overStatus };
+        
+        // Push below the over item, or to the end if over is a column
+        const finalOverIndex = overIndex >= 0 ? overIndex : newTasks.length - 1;
+        return arrayMove(newTasks, activeIndex, finalOverIndex);
+      }
+
+      return prev;
+    });
+  }, [isAdminOrHR, currentUserId]);
+
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     setActiveTask(null);
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over) return;
 
-    const taskId = active.id as string;
-    const newStatus = over.id as TaskStatus;
+    const activeId = active.id;
+    const overId = over.id;
 
-    // Validate target is a column
-    if (!COLUMNS.includes(newStatus as TaskStatus)) return;
+    setTasks((prev) => {
+      const activeIndex = prev.findIndex((t) => t.id === activeId);
+      const overIndex = prev.findIndex((t) => t.id === overId);
 
-    const task = tasks.find((t) => t.id === taskId);
-    if (!task || task.status === newStatus) return;
+      let newTasks = prev;
 
-    // Permission check — agents/accountants can only move their own
-    if (!isAdminOrHR && task.assigned_to !== currentUserId) {
-      toastError("Permission Denied", "You can only move your own tasks.");
-      return;
-    }
+      if (activeIndex !== overIndex && overIndex !== -1) {
+        newTasks = arrayMove(newTasks, activeIndex, overIndex);
+      }
 
-    // Optimistic update
-    const oldStatus = task.status;
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
-    );
+      const movedTask = newTasks.find(t => t.id === activeId);
+      if (!movedTask) return newTasks;
 
-    const res = await updateTaskStatus(taskId, newStatus);
-    if (res.success) {
-      success("Task Moved", `Moved to ${TASK_STATUS_LABELS[newStatus]}`);
-      if (onTaskChange) onTaskChange();
-    } else {
-      // Rollback
-      setTasks((prev) =>
-        prev.map((t) => (t.id === taskId ? { ...t, status: oldStatus } : t))
-      );
-      toastError("Error", "Failed to move task. Please try again.");
-    }
-  }, [tasks, isAdminOrHR, currentUserId, onTaskChange, success, toastError]);
+      const updatedColumnTasks = newTasks.filter(t => t.status === movedTask.status);
+      const reorderPayload = updatedColumnTasks.map((t, i) => ({
+        id: t.id,
+        sort_order: i,
+        status: t.status
+      }));
+
+      // Fire API in background
+      reorderTasks(reorderPayload).catch(e => {
+        console.error("Failed to reorder tasks", e);
+        toastError("Error", "Failed to save task order.");
+      });
+
+      return newTasks;
+    });
+  }, [toastError]);
 
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
     const task = tasks.find((t) => t.id === taskId);
@@ -514,8 +561,9 @@ export default function KanbanBoard({
     <>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -525,19 +573,21 @@ export default function KanbanBoard({
               status={status}
               count={tasksByStatus[status].length}
             >
-              {tasksByStatus[status].map((task) => (
-                <DraggableTaskCard
-                  key={task.id}
-                  task={task}
-                  employees={employees}
-                  currentUserId={currentUserId}
-                  isAdminOrHR={isAdminOrHR}
-                  onStatusChange={handleStatusChange}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onCardClick={onTaskClick ?? (() => {})}
-                />
-              ))}
+              <SortableContext items={tasksByStatus[status].map(t => t.id)} strategy={verticalListSortingStrategy}>
+                {tasksByStatus[status].map((task) => (
+                  <SortableTaskCard
+                    key={task.id}
+                    task={task}
+                    employees={employees}
+                    currentUserId={currentUserId}
+                    isAdminOrHR={isAdminOrHR}
+                    onStatusChange={handleStatusChange}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                    onCardClick={onTaskClick ?? (() => {})}
+                  />
+                ))}
+              </SortableContext>
 
               {tasksByStatus[status].length === 0 && (
                 <div className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-neutral-200 rounded-lg">
@@ -550,8 +600,8 @@ export default function KanbanBoard({
 
         {/* Drag Overlay — ghost card that follows the cursor */}
         <DragOverlay dropAnimation={{ duration: 200, easing: "ease" }}>
-          {activeTask && (
-            <DraggableTaskCard
+          {activeTask ? (
+            <SortableTaskCard
               task={activeTask}
               employees={employees}
               currentUserId={currentUserId}
@@ -562,7 +612,7 @@ export default function KanbanBoard({
               onCardClick={() => {}}
               isDragOverlay
             />
-          )}
+          ) : null}
         </DragOverlay>
       </DndContext>
 

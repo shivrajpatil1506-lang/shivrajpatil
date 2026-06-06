@@ -77,7 +77,7 @@ export async function getTasks(): Promise<Task[]> {
 
     const tasks = await db.task.findMany({
       where: whereClause,
-      orderBy: [{ due_date: "asc" }, { created_at: "desc" }],
+      orderBy: [{ sort_order: "asc" }, { due_date: "asc" }, { created_at: "desc" }],
       include: {
         _count: {
           select: {
@@ -299,6 +299,28 @@ export async function updateTaskStatus(id: string, newStatus: string) {
     return { success: true, task: updated };
   } catch (error: any) {
     console.error("Failed to update task status:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function reorderTasks(tasks: { id: string; sort_order: number; status: string }[]) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
+    // Run all updates in a transaction
+    await db.$transaction(
+      tasks.map((task) =>
+        db.task.update({
+          where: { id: task.id },
+          data: { sort_order: task.sort_order, status: task.status },
+        })
+      )
+    );
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to reorder tasks:", error);
     return { success: false, error: error.message };
   }
 }
