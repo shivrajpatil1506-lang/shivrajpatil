@@ -72,7 +72,7 @@ export default function Header({ title }: HeaderProps) {
           {showNotifications && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
-              <div className="absolute right-0 top-full mt-2 w-[380px] bg-white rounded-xl shadow-lg border border-neutral-200 z-50 animate-fade-in overflow-hidden">
+              <div className="absolute -right-12 sm:right-0 top-full mt-2 w-[320px] sm:w-[380px] bg-white rounded-xl shadow-lg border border-neutral-200 z-50 animate-fade-in overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
                   <h3 className="font-semibold text-sm text-neutral-900">Notifications</h3>
                   {unreadCount > 0 && (

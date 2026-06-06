@@ -28,7 +28,7 @@ export default function Sidebar({ navItems }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
-  const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { sidebarCollapsed, toggleSidebar, sidebarMobileOpen, setSidebarMobileOpen } = useUIStore();
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -39,8 +39,11 @@ export default function Sidebar({ navItems }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 h-screen flex flex-col z-40 transition-all duration-300 ease-in-out bg-white border-r border-neutral-200",
-        sidebarCollapsed ? "w-[72px]" : "w-[260px]"
+        "fixed left-0 top-0 h-screen flex flex-col z-40 transition-transform duration-300 ease-in-out bg-white border-r border-neutral-200",
+        sidebarCollapsed ? "lg:w-[72px]" : "lg:w-[260px]",
+        // Mobile behavior
+        "w-[260px]",
+        sidebarMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
       {/* Logo */}
@@ -71,6 +74,7 @@ export default function Sidebar({ navItems }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setSidebarMobileOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
                 isActive
@@ -101,7 +105,7 @@ export default function Sidebar({ navItems }: SidebarProps) {
       {/* Collapse Toggle */}
       <button
         onClick={toggleSidebar}
-        className="mx-2 mb-2 p-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors flex items-center justify-center"
+        className="hidden lg:flex mx-2 mb-2 p-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors items-center justify-center"
       >
         {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>
