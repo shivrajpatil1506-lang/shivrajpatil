@@ -5,20 +5,22 @@ import { db } from "@/lib/db";
 // Metrics for Admin Dashboard
 export async function getAdminMetrics() {
   try {
-    const transactions = await db.transaction.findMany();
-    
-    const totalIncome = transactions
-      .filter(t => ["INSTALMENT_RECEIVED", "BOOKING_AMOUNT", "PROPERTY_SALE", "OTHER_INCOME"].includes(t.category))
-      .reduce((sum, t) => sum + t.amount, 0);
-      
-    const totalExpense = transactions
-      .filter(t => ["SALARY", "PURCHASE", "PETTY_EXPENSE", "CONTRACTOR_PAYMENT", "UTILITY_EXPENSE", "OTHER_EXPENSE"].includes(t.category))
-      .reduce((sum, t) => sum + t.amount, 0);
+    const [incomeAggr, expenseAggr, activeSites] = await Promise.all([
+      db.transaction.aggregate({
+        _sum: { amount: true },
+        where: { category: { in: ["INSTALMENT_RECEIVED", "BOOKING_AMOUNT", "PROPERTY_SALE", "OTHER_INCOME"] } }
+      }),
+      db.transaction.aggregate({
+        _sum: { amount: true },
+        where: { category: { in: ["SALARY", "PURCHASE", "PETTY_EXPENSE", "CONTRACTOR_PAYMENT", "UTILITY_EXPENSE", "OTHER_EXPENSE"] } }
+      }),
+      db.site.count({ where: { status: 'active' } })
+    ]);
 
-    const activeSites = await db.site.count({ where: { status: 'active' } });
-    
+    const totalIncome = incomeAggr._sum.amount || 0;
+    const totalExpense = expenseAggr._sum.amount || 0;
+
     // Simplistic mock data mixing with real totals for demo purposes
-    // A real app would aggregate this by month/category via Prisma grouping
     return {
       revenue: totalIncome,
       expenses: totalExpense,
@@ -34,17 +36,20 @@ export async function getAdminMetrics() {
 // Metrics for Accountant Dashboard
 export async function getAccountantMetrics() {
   try {
-    const transactions = await db.transaction.findMany();
-    
-    const totalIncome = transactions
-      .filter(t => ["INSTALMENT_RECEIVED", "BOOKING_AMOUNT", "PROPERTY_SALE", "OTHER_INCOME"].includes(t.category))
-      .reduce((sum, t) => sum + t.amount, 0);
-      
-    const totalExpense = transactions
-      .filter(t => ["SALARY", "PURCHASE", "PETTY_EXPENSE", "CONTRACTOR_PAYMENT", "UTILITY_EXPENSE", "OTHER_EXPENSE"].includes(t.category))
-      .reduce((sum, t) => sum + t.amount, 0);
+    const [incomeAggr, expenseAggr, pendingApprovals] = await Promise.all([
+      db.transaction.aggregate({
+        _sum: { amount: true },
+        where: { category: { in: ["INSTALMENT_RECEIVED", "BOOKING_AMOUNT", "PROPERTY_SALE", "OTHER_INCOME"] } }
+      }),
+      db.transaction.aggregate({
+        _sum: { amount: true },
+        where: { category: { in: ["SALARY", "PURCHASE", "PETTY_EXPENSE", "CONTRACTOR_PAYMENT", "UTILITY_EXPENSE", "OTHER_EXPENSE"] } }
+      }),
+      db.approvalRequest.count({ where: { status: 'pending' } })
+    ]);
 
-    const pendingApprovals = await db.approvalRequest.count({ where: { status: 'pending' } });
+    const totalIncome = incomeAggr._sum.amount || 0;
+    const totalExpense = expenseAggr._sum.amount || 0;
     
     return {
       todaysCollection: totalIncome * 0.1, // mock logic for "today"
@@ -61,10 +66,12 @@ export async function getAccountantMetrics() {
 // Metrics for Agent Dashboard
 export async function getAgentMetrics() {
   try {
-    const purchases = await db.customerPurchase.findMany();
+    const purchasesAggr = await db.customerPurchase.aggregate({
+      _sum: { total_agreement_value: true }
+    });
     
     const target = 50000000;
-    const achieved = purchases.reduce((sum, p) => sum + p.total_agreement_value, 0);
+    const achieved = purchasesAggr._sum.total_agreement_value || 0;
     const activeLeads = 12; // Placeholder
     
     return {
@@ -82,15 +89,21 @@ export async function getAgentMetrics() {
 // Metrics for HR Dashboard
 export async function getHRMetrics() {
   try {
-    const employees = await db.employee.findMany({ where: { status: 'active' } });
+    const [employeeAggr, totalEmployees, activeAgents] = await Promise.all([
+      db.employee.aggregate({
+        _sum: { gross_salary: true },
+        where: { status: 'active' }
+      }),
+      db.employee.count({ where: { status: 'active' } }),
+      db.employee.count({ where: { status: 'active', portal_role: 'agent' } })
+    ]);
     
-    const totalEmployees = employees.length;
-    const monthlySalary = employees.reduce((sum, e) => sum + (e.gross_salary || 0), 0);
+    const monthlySalary = employeeAggr._sum.gross_salary || 0;
     const pendingLeaves = 3; // Placeholder
     
     return {
       totalEmployees,
-      activeAgents: employees.filter(e => e.portal_role === "agent").length,
+      activeAgents,
       monthlySalary,
       pendingLeaves,
     };

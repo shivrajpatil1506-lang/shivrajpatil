@@ -6,7 +6,6 @@ import { getCurrentUser } from "@/lib/auth";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 
-export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "GB Infra — Operations Management Platform",
