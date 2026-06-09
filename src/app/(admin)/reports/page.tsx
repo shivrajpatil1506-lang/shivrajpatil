@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import { BarChart3, FileText, Users, UserCheck, DollarSign, Building2, MapPin, AlertTriangle, CreditCard, Briefcase, TrendingUp } from "lucide-react";

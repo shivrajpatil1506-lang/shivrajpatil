@@ -1,23 +1,12 @@
-"use client";
-
 import React from "react";
 import { formatCurrency } from "@/lib/utils";
-import { cashFlowData } from "@/lib/mock-data";
 import { getAccountantMetrics } from "@/app/actions/dashboard";
-import { TrendingUp, TrendingDown, FileText, Wallet, AlertCircle, Loader2 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { TrendingUp, TrendingDown, FileText, Wallet, AlertCircle } from "lucide-react";
 import PageHeader from "@/components/shared/PageHeader";
+import DashboardCharts from "./DashboardCharts";
 
-export default function AccountantDashboard() {
-  const [metrics, setMetrics] = React.useState({ todaysCollection: 0, pendingPayments: 0, bankBalance: 0, pendingApprovals: 0 });
-  const [loading, setLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    getAccountantMetrics().then(data => {
-      setMetrics(data);
-      setLoading(false);
-    });
-  }, []);
+export default async function AccountantDashboard() {
+  const metrics = await getAccountantMetrics();
 
   const kpiData = [
     { label: "Bank Balance", value: formatCurrency(metrics.bankBalance), trend: 5.2, icon: Wallet, color: "text-emerald-600", bg: "bg-emerald-100" },
@@ -30,12 +19,8 @@ export default function AccountantDashboard() {
     <div className="animate-fade-in space-y-6">
       <PageHeader title="Accountant Dashboard" description="Financial overview and pending tasks" />
 
-      {loading ? (
-        <div className="py-16 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary-500" /></div>
-      ) : (
-        <>
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {kpiData.map((kpi, idx) => (
           <div key={idx} className="bg-white rounded-xl border border-neutral-100 p-5 shadow-sm">
             <div className="flex justify-between items-start mb-4">
@@ -57,23 +42,8 @@ export default function AccountantDashboard() {
         ))}
       </div>
 
-      {/* Chart */}
-      <div className="bg-white rounded-xl border border-neutral-100 shadow-sm p-6">
-        <h3 className="text-base font-bold text-neutral-900 mb-6" style={{ fontFamily: "var(--font-heading)" }}>Cash Flow Trend</h3>
-        <div className="h-[300px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={cashFlowData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#737373' }} dy={10} />
-              <YAxis tickFormatter={(val) => `₹${(val/100000).toFixed(0)}L`} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#737373' }} />
-              <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
-              <Line type="monotone" dataKey="net" name="Net Flow" stroke="#10b981" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-      </>
-      )}
+      {/* Client Component for Heavy Charts */}
+      <DashboardCharts />
     </div>
   );
 }
