@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Building2, MapPin, Users, UserCog, UserCheck,
   IndianRupee, BarChart3, CheckSquare, ClipboardList, Settings,
-  ShoppingBag, ChevronLeft, ChevronRight, LogOut,
+  ShoppingBag, LogOut,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn, getInitials } from "@/lib/utils";
@@ -28,9 +28,13 @@ export default function Sidebar({ navItems }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuthStore();
-  const { sidebarCollapsed, toggleSidebar, sidebarMobileOpen, setSidebarMobileOpen } = useUIStore();
+  // Sidebar is now fixed on desktop, so sidebarCollapsed is effectively false. 
+  // We keep the mobile toggle logic.
+  const { sidebarMobileOpen, setSidebarMobileOpen } = useUIStore();
+  const sidebarCollapsed = false; // Forced false as per user request to remove collapse button
 
-  const handleLogout = async () => {
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     await fetch("/api/auth/logout", { method: "POST" });
     useAuthStore.getState().setUser(null as any);
     router.push("/login");
@@ -39,33 +43,31 @@ export default function Sidebar({ navItems }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 h-screen flex flex-col z-40 transition-transform duration-300 ease-in-out bg-white border-r border-neutral-200",
-        sidebarCollapsed ? "lg:w-[72px]" : "lg:w-[260px]",
+        "fixed left-0 top-0 h-screen flex flex-col z-40 transition-transform duration-300 ease-in-out bg-sidebar border-r border-border shadow-sm",
+        "lg:w-[260px]",
         // Mobile behavior
         "w-[260px]",
         sidebarMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}
     >
-      {/* Logo */}
-      <div className={cn(
-        "flex items-center gap-3 px-4 h-16 border-b border-neutral-200 shrink-0",
-        sidebarCollapsed && "justify-center px-2"
-      )}>
-        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-neutral-100 flex items-center justify-center border border-neutral-200">
-          <Image src="/logo.png" alt="GB Infra" width={36} height={36} className="object-contain" />
+      {/* Top Logo */}
+      <div className="flex items-center gap-3 px-4 h-16 border-b border-border shrink-0">
+        <div className="w-8 h-8 rounded bg-primary-100 flex items-center justify-center border border-primary-200 shrink-0">
+          <Building2 className="w-4 h-4 text-primary-700" />
         </div>
-        {!sidebarCollapsed && (
-          <div className="animate-fade-in">
-            <h1 className="text-neutral-900 font-bold text-lg leading-none" style={{ fontFamily: "var(--font-heading)" }}>
-              GB Infra
-            </h1>
-            <p className="text-neutral-500 text-[10px] mt-0.5">Operations Platform</p>
-          </div>
-        )}
+        <div className="animate-fade-in">
+          <h1 className="text-neutral-900 font-bold text-base leading-none" style={{ fontFamily: "var(--font-heading)" }}>
+            GB Infra
+          </h1>
+          <p className="text-neutral-500 text-[10px] mt-0.5 uppercase tracking-wider">Platform</p>
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-2 overflow-y-auto space-y-1">
+      <nav className="flex-1 py-4 px-3 overflow-y-auto overflow-x-hidden space-y-0.5">
+        <div className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2 px-2">
+          Menu
+        </div>
         {navItems.map((item) => {
           const Icon = iconMap[item.icon] || LayoutDashboard;
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -76,59 +78,55 @@ export default function Sidebar({ navItems }: SidebarProps) {
               href={item.href}
               onClick={() => setSidebarMobileOpen(false)}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group relative",
+                "flex items-center gap-3 px-2 py-2 rounded-md text-sm font-medium transition-colors group relative",
                 isActive
-                  ? "sidebar-active font-semibold"
-                  : "text-neutral-800 hover:text-neutral-900 hover:bg-neutral-50",
-                sidebarCollapsed && "justify-center px-2"
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100"
               )}
             >
-              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary-500" : "text-neutral-600 group-hover:text-neutral-800")} />
-              {!sidebarCollapsed && (
-                <span className="animate-fade-in">{item.label}</span>
-              )}
-              {!sidebarCollapsed && item.badge && item.badge > 0 && (
+              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-primary-600" : "text-neutral-500 group-hover:text-neutral-700")} />
+              <span className="truncate">{item.label}</span>
+              
+              {item.badge && item.badge > 0 && (
                 <span className="ml-auto bg-primary-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
                   {item.badge}
                 </span>
-              )}
-              {sidebarCollapsed && (
-                <div className="absolute left-full ml-2 px-2.5 py-1 bg-neutral-900 text-white text-xs rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50 shadow-lg">
-                  {item.label}
-                </div>
               )}
             </Link>
           );
         })}
       </nav>
 
-      {/* Collapse Toggle */}
-      <button
-        onClick={toggleSidebar}
-        className="hidden lg:flex mx-2 mb-2 p-2 rounded-lg text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 transition-colors items-center justify-center"
+      {/* Bottom User Profile */}
+      <div 
+        className="border-t border-border p-3 flex items-center gap-3 hover:bg-neutral-50 transition-colors cursor-pointer shrink-0 group relative"
+        onClick={() => { 
+          setSidebarMobileOpen(false); 
+          router.push('/profile'); 
+        }}
       >
-        {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-      </button>
-
-      {/* User */}
-      <div className={cn(
-        "border-t border-neutral-200 p-3 flex items-center gap-3",
-        sidebarCollapsed && "justify-center px-2"
-      )}>
-        <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-sm font-semibold shrink-0">
+        <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-sm font-semibold shrink-0 border border-primary-200">
           {user ? getInitials(user.name) : "GB"}
         </div>
-        {!sidebarCollapsed && user && (
-          <div className="flex-1 min-w-0 animate-fade-in">
-            <p className="text-neutral-900 text-sm font-medium truncate">{user.name}</p>
-            <p className="text-neutral-600 text-xs capitalize">{user.role}</p>
+        
+        {user && (
+          <div className="flex-1 min-w-0">
+            <p className="text-neutral-900 text-sm font-semibold truncate group-hover:text-primary-600 transition-colors">
+              {user.name}
+            </p>
+            <p className="text-neutral-500 text-[11px] uppercase tracking-wider">
+              {user.role}
+            </p>
           </div>
         )}
-        {!sidebarCollapsed && (
-          <button onClick={handleLogout} className="text-neutral-500 hover:text-danger-500 transition-colors p-1" title="Log Out">
-            <LogOut className="w-4 h-4" />
-          </button>
-        )}
+        
+        <button
+          onClick={handleLogout}
+          className="text-neutral-400 hover:text-danger-500 hover:bg-danger-50 p-1.5 rounded-md transition-colors"
+          title="Log Out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </aside>
   );

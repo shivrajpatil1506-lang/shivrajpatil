@@ -6,17 +6,17 @@
    ========================================== */
 
 @theme inline {
-  /* ---- Primary Brand ---- */
-  --color-primary-900: #174ea6;
-  --color-primary-800: #1a73e8;
-  --color-primary-700: #1967d2;
-  --color-primary-600: #1a73e8;
-  --color-primary-500: #4184f3;
-  --color-primary-400: #669df6;
-  --color-primary-300: #8ab4f8;
-  --color-primary-200: #aecbfa;
-  --color-primary-100: #d2e3fc;
-  --color-primary-50: #e8f0fe;
+  /* ---- Primary Brand (Kite-inspired vibrant blue) ---- */
+  --color-primary-900: #1a3c66;
+  --color-primary-800: #22518a;
+  --color-primary-700: #2b65ac;
+  --color-primary-600: #3376c9;
+  --color-primary-500: #387ed1; /* Kite Blue */
+  --color-primary-400: #5f97da;
+  --color-primary-300: #87b1e3;
+  --color-primary-200: #aecbed;
+  --color-primary-100: #d6e5f6;
+  --color-primary-50:  #ebf2fa;
 
   /* ---- Accent / Amber ---- */
   --color-accent-500: #f9ab00;
@@ -24,43 +24,44 @@
   --color-accent-300: #fcd230;
   --color-accent-100: #fef7e0;
 
-  /* ---- Success ---- */
-  --color-success-600: #137333;
+  /* ---- Success (Buy Green) ---- */
+  --color-success-600: #3d9940;
   --color-success-500: #4caf50;
-  --color-success-100: #e6f4ea;
+  --color-success-100: #edf7ed;
 
-  /* ---- Danger ---- */
-  --color-danger-600: #c5221f;
-  --color-danger-500: #ea4335;
-  --color-danger-100: #fce8e6;
+  /* ---- Danger (Sell Red) ---- */
+  --color-danger-600: #d44747;
+  --color-danger-500: #ea5353;
+  --color-danger-100: #fdeded;
 
   /* ---- Warning ---- */
-  --color-warning-500: #fb8c00;
-  --color-warning-100: #feefe3;
+  --color-warning-600: #e68a00;
+  --color-warning-500: #ff9800;
+  --color-warning-100: #fff4e5;
 
-  /* ---- Neutrals ---- */
-  --color-neutral-950: #202124;
-  --color-neutral-900: #3c4043;
-  --color-neutral-800: #5f6368;
-  --color-neutral-700: #80868b;
-  --color-neutral-600: #9aa0a6;
-  --color-neutral-500: #bdc1c6;
-  --color-neutral-400: #dadce0;
-  --color-neutral-300: #e8eaed;
-  --color-neutral-200: #f1f3f4;
-  --color-neutral-100: #f8f9fa;
-  --color-neutral-50: #ffffff;
+  /* ---- Neutrals (Premium High-Contrast) ---- */
+  --color-neutral-950: #111111;
+  --color-neutral-900: #333333; /* Dark text */
+  --color-neutral-800: #444444; /* Standard text (Kite style) */
+  --color-neutral-700: #666666;
+  --color-neutral-600: #888888;
+  --color-neutral-500: #9b9b9b; /* Muted text */
+  --color-neutral-400: #cccccc;
+  --color-neutral-300: #dfdfdf;
+  --color-neutral-200: #eeeeee; /* Standard border */
+  --color-neutral-100: #f5f5f5; /* Subtle background */
+  --color-neutral-50:  #ffffff;
 
   /* ---- Semantic Colors ---- */
-  --color-background: #f8f9fa;
-  --color-foreground: #3c4043;
+  --color-background: #f9f9f9;
+  --color-foreground: #444444;
   --color-card: #ffffff;
-  --color-card-foreground: #3c4043;
+  --color-card-foreground: #444444;
   --color-sidebar: #ffffff;
-  --color-sidebar-foreground: #5f6368;
-  --color-muted: #f1f3f4;
-  --color-muted-foreground: #80868b;
-  --color-border: #e8eaed;
+  --color-sidebar-foreground: #444444;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #9b9b9b;
+  --color-border: #eeeeee;
 
   /* ---- Fonts ---- */
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
