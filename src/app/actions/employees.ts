@@ -3,11 +3,10 @@
 import { db } from "@/lib/db";
 import { Employee } from "@prisma/client";
 import { getRoleFilters } from "@/lib/rbac";
+import { unstable_cache, revalidateTag } from "next/cache";
 
-export async function getEmployees() {
+async function fetchEmployees(relatedFilter: any) {
   try {
-    const { relatedFilter } = await getRoleFilters();
-
     const employees = await db.employee.findMany({
       where: { is_deleted: false, ...relatedFilter },
       orderBy: { created_at: "desc" },
@@ -22,10 +21,19 @@ export async function getEmployees() {
   }
 }
 
-export async function getAgents() {
-  try {
-    const { relatedFilter } = await getRoleFilters();
+const getCachedEmployees = unstable_cache(
+  fetchEmployees,
+  ['employees-list'],
+  { revalidate: 300, tags: ['employees'] }
+);
 
+export async function getEmployees() {
+  const { relatedFilter } = await getRoleFilters();
+  return getCachedEmployees(relatedFilter);
+}
+
+async function fetchAgents(relatedFilter: any) {
+  try {
     const agents = await db.employee.findMany({
       where: { portal_role: "agent", is_deleted: false, ...relatedFilter },
       orderBy: { created_at: "desc" },
@@ -40,7 +48,18 @@ export async function getAgents() {
   }
 }
 
-export async function getEmployeeWithDetails(id: string) {
+const getCachedAgents = unstable_cache(
+  fetchAgents,
+  ['agents-list'],
+  { revalidate: 300, tags: ['employees'] }
+);
+
+export async function getAgents() {
+  const { relatedFilter } = await getRoleFilters();
+  return getCachedAgents(relatedFilter);
+}
+
+async function fetchEmployeeWithDetails(id: string) {
   try {
     const employee = await db.employee.findUnique({
       where: { id, is_deleted: false },
@@ -82,6 +101,12 @@ export async function getEmployeeWithDetails(id: string) {
   }
 }
 
+export const getEmployeeWithDetails = unstable_cache(
+  fetchEmployeeWithDetails,
+  ['employee-with-details'],
+  { revalidate: 300, tags: ['employees'] }
+);
+
 export async function createEmployee(formData: any) {
   try {
     const newEmployee = await db.employee.create({
@@ -110,6 +135,7 @@ export async function createEmployee(formData: any) {
         status: "active",
       }
     });
+    revalidateTag('employees');
     return { success: true, employee: newEmployee };
   } catch (error: any) {
     console.error("Failed to create employee:", error);
@@ -122,6 +148,7 @@ export async function updateEmployee(id: string, data: Partial<Employee>): Promi
     where: { id },
     data: data as any,
   });
+  revalidateTag('employees');
   return updated;
 }
 
@@ -131,6 +158,7 @@ export async function deleteEmployee(id: string) {
       where: { id },
       data: { is_deleted: true, status: "inactive" }
     });
+    revalidateTag('employees');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete employee:", error);

@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { revalidateTag } from "next/cache";
 
 export async function createSale(formData: any) {
   try {
@@ -88,6 +89,9 @@ export async function createSale(formData: any) {
       return purchase;
     });
 
+    revalidateTag('customers');
+    revalidateTag('sites');
+    revalidateTag('transactions');
     return { success: true, purchase: result };
   } catch (error: any) {
     console.error("Failed to create sale:", error);

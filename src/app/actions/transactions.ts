@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { Prisma, Transaction } from "@prisma/client";
 import { getRoleFilters } from "@/lib/rbac";
+import { unstable_cache, revalidateTag } from "next/cache";
 
 export async function createTransaction(formData: any) {
   try {
@@ -30,6 +31,7 @@ export async function createTransaction(formData: any) {
       }
     });
 
+    revalidateTag('transactions');
     return { success: true, transaction };
   } catch (error: any) {
     console.error("Failed to create transaction:", error);
@@ -37,10 +39,8 @@ export async function createTransaction(formData: any) {
   }
 }
 
-export async function getTransactions() {
+async function fetchTransactions(relatedFilter: any) {
   try {
-    const { relatedFilter } = await getRoleFilters();
-
     const transactions = await db.transaction.findMany({
       where: { is_deleted: false, ...relatedFilter },
       orderBy: { transaction_date: 'desc' },
@@ -65,7 +65,18 @@ export async function getTransactions() {
   }
 }
 
-export async function getTransactionById(id: string) {
+const getCachedTransactions = unstable_cache(
+  fetchTransactions,
+  ['transactions-list'],
+  { revalidate: 300, tags: ['transactions'] }
+);
+
+export async function getTransactions() {
+  const { relatedFilter } = await getRoleFilters();
+  return getCachedTransactions(relatedFilter);
+}
+
+async function fetchTransactionById(id: string) {
   try {
     const transaction = await db.transaction.findUnique({
       where: { id },
@@ -91,11 +102,18 @@ export async function getTransactionById(id: string) {
   }
 }
 
+export const getTransactionById = unstable_cache(
+  fetchTransactionById,
+  ['transaction-by-id'],
+  { revalidate: 300, tags: ['transactions'] }
+);
+
 export async function updateTransaction(id: string, data: Partial<Transaction>) {
   const updated = await db.transaction.update({
     where: { id },
     data: data as any,
   });
+  revalidateTag('transactions');
   return updated;
 }
 
@@ -105,6 +123,7 @@ export async function deleteTransaction(id: string) {
       where: { id },
       data: { status: "cancelled" }
     });
+    revalidateTag('transactions');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete transaction:", error);
@@ -114,15 +133,11 @@ export async function deleteTransaction(id: string) {
 
 import { getCurrentUser } from "@/lib/auth";
 
-export async function getTransactionsForCurrentUser() {
+async function fetchTransactionsForUserId(employeeId: string) {
   try {
-    const user = await getCurrentUser();
-    if (!user || !user.employee_id) return [];
-    
-    // In a real app we filter by agent_id or added_by
     const transactions = await db.transaction.findMany({
       where: { 
-        added_by: user.employee_id
+        added_by: employeeId
       },
       orderBy: { transaction_date: "desc" },
       include: {
@@ -138,6 +153,24 @@ export async function getTransactionsForCurrentUser() {
         ? [txn.customer.first_name, txn.customer.middle_name, txn.customer.last_name].filter(Boolean).join(" ") 
         : null
     }));
+  } catch (error) {
+    console.error("Failed to fetch agent transactions:", error);
+    return [];
+  }
+}
+
+const getCachedTransactionsForUserId = unstable_cache(
+  fetchTransactionsForUserId,
+  ['transactions-current-user'],
+  { revalidate: 300, tags: ['transactions'] }
+);
+
+export async function getTransactionsForCurrentUser() {
+  try {
+    const user = await getCurrentUser();
+    if (!user || !user.employee_id) return [];
+    
+    return getCachedTransactionsForUserId(user.employee_id);
   } catch (error) {
     console.error("Failed to fetch agent transactions:", error);
     return [];

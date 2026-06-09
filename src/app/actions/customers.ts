@@ -2,8 +2,10 @@
 
 import { db } from "@/lib/db";
 import { Customer } from "@prisma/client";
+import { getCurrentUser } from "@/lib/auth";
+import { unstable_cache, revalidateTag } from "next/cache";
 
-export async function getCustomers() {
+async function fetchCustomers() {
   try {
     const customers = await db.customer.findMany({
       where: { is_deleted: false },
@@ -27,20 +29,18 @@ export async function getCustomers() {
   }
 }
 
-import { getCurrentUser } from "@/lib/auth";
+export const getCustomers = unstable_cache(
+  fetchCustomers,
+  ['customers-list'],
+  { revalidate: 300, tags: ['customers'] }
+);
 
-export async function getCustomersForCurrentUser() {
+async function fetchCustomersForUserId(employeeId: string) {
   try {
-    const user = await getCurrentUser();
-    if (!user || !user.employee_id) return [];
-    
-    // In a real app we would filter by agent_id or added_by
-    // Currently Prisma schema has added_by as string, so we can filter by that.
-    // If not set up, we just return all for this agent's company, or filter by added_by.
     const customers = await db.customer.findMany({
       where: { 
         is_deleted: false,
-        added_by: user.employee_id
+        added_by: employeeId
       },
       orderBy: { added_at: "desc" },
       include: {
@@ -62,7 +62,25 @@ export async function getCustomersForCurrentUser() {
   }
 }
 
-export async function getCustomerWithDetails(id: string) {
+const getCachedCustomersForUserId = unstable_cache(
+  fetchCustomersForUserId,
+  ['customers-by-user'],
+  { revalidate: 300, tags: ['customers'] }
+);
+
+export async function getCustomersForCurrentUser() {
+  try {
+    const user = await getCurrentUser();
+    if (!user || !user.employee_id) return [];
+    
+    return getCachedCustomersForUserId(user.employee_id);
+  } catch (error) {
+    console.error("Failed to get current user for customers:", error);
+    return [];
+  }
+}
+
+async function fetchCustomerWithDetails(id: string) {
   try {
     const customer = await db.customer.findUnique({
       where: { id, is_deleted: false },
@@ -85,6 +103,12 @@ export async function getCustomerWithDetails(id: string) {
     return null;
   }
 }
+
+export const getCustomerWithDetails = unstable_cache(
+  fetchCustomerWithDetails,
+  ['customer-with-details'],
+  { revalidate: 300, tags: ['customers'] }
+);
 
 export async function createCustomerWithPurchase(formData: any) {
   try {
@@ -147,6 +171,8 @@ export async function createCustomerWithPurchase(formData: any) {
       return customer;
     });
     
+    revalidateTag('customers');
+    revalidateTag('transactions'); // Because a transaction is created
     return { success: true, customer: result };
   } catch (error: any) {
     console.error("Failed to create customer:", error);
@@ -159,6 +185,7 @@ export async function updateCustomer(id: string, data: Partial<Customer>) {
     where: { id },
     data: data as any,
   });
+  revalidateTag('customers');
   return updated;
 }
 
@@ -168,6 +195,7 @@ export async function deleteCustomer(id: string) {
       where: { id },
       data: { is_deleted: true }
     });
+    revalidateTag('customers');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete customer:", error);

@@ -3,11 +3,10 @@
 import { db } from "@/lib/db";
 import { Site } from "@prisma/client";
 import { getRoleFilters } from "@/lib/rbac";
+import { unstable_cache, revalidateTag } from "next/cache";
 
-export async function getSites() {
+async function fetchSites(relatedFilter: any) {
   try {
-    const { relatedFilter } = await getRoleFilters();
-
     const sites = await db.site.findMany({
       where: { is_deleted: false, ...relatedFilter },
       orderBy: { created_at: "desc" },
@@ -24,7 +23,18 @@ export async function getSites() {
   }
 }
 
-export async function getSitesByCompanyId(companyId: string): Promise<Site[]> {
+const getCachedSites = unstable_cache(
+  fetchSites,
+  ['sites-list'],
+  { revalidate: 300, tags: ['sites'] }
+);
+
+export async function getSites() {
+  const { relatedFilter } = await getRoleFilters();
+  return getCachedSites(relatedFilter);
+}
+
+async function fetchSitesByCompanyId(companyId: string): Promise<Site[]> {
   try {
     const sites = await db.site.findMany({
       where: { company_id: companyId, is_deleted: false },
@@ -37,7 +47,13 @@ export async function getSitesByCompanyId(companyId: string): Promise<Site[]> {
   }
 }
 
-export async function getSiteById(id: string) {
+export const getSitesByCompanyId = unstable_cache(
+  fetchSitesByCompanyId,
+  ['sites-by-company-id'],
+  { revalidate: 300, tags: ['sites'] }
+);
+
+async function fetchSiteById(id: string) {
   try {
     const site = await db.site.findUnique({
       where: { id, is_deleted: false },
@@ -49,7 +65,13 @@ export async function getSiteById(id: string) {
   }
 }
 
-export async function getSiteWithDetails(id: string) {
+export const getSiteById = unstable_cache(
+  fetchSiteById,
+  ['site-by-id'],
+  { revalidate: 300, tags: ['sites'] }
+);
+
+async function fetchSiteWithDetails(id: string) {
   try {
     const site = await db.site.findUnique({
       where: { id, is_deleted: false },
@@ -70,6 +92,12 @@ export async function getSiteWithDetails(id: string) {
     return null;
   }
 }
+
+export const getSiteWithDetails = unstable_cache(
+  fetchSiteWithDetails,
+  ['site-with-details'],
+  { revalidate: 300, tags: ['sites'] }
+);
 
 export async function createSite(formData: any) {
   try {
@@ -92,6 +120,7 @@ export async function createSite(formData: any) {
         created_by: "system",
       }
     });
+    revalidateTag('sites');
     return { success: true, site: newSite };
   } catch (error: any) {
     console.error("Failed to create site:", error);
@@ -104,6 +133,7 @@ export async function updateSite(id: string, data: Partial<Site>) {
     where: { id },
     data: data as any,
   });
+  revalidateTag('sites');
   return updated;
 }
 
@@ -111,8 +141,9 @@ export async function deleteSite(id: string) {
   try {
     await db.site.update({
       where: { id },
-      data: { status: "on_hold" } // or create is_deleted in DB if needed, but on_hold works as soft-delete
+      data: { status: "on_hold" } 
     });
+    revalidateTag('sites');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete site:", error);

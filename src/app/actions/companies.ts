@@ -3,11 +3,10 @@
 import { db } from "@/lib/db";
 import { Company } from "@prisma/client";
 import { getRoleFilters } from "@/lib/rbac";
+import { unstable_cache, revalidateTag } from "next/cache";
 
-export async function getCompanies() {
+async function fetchCompanies(companyFilter: any) {
   try {
-    const { companyFilter } = await getRoleFilters();
-
     const companies = await db.company.findMany({
       where: { is_deleted: false, ...companyFilter },
       orderBy: { created_at: "desc" },
@@ -24,7 +23,18 @@ export async function getCompanies() {
   }
 }
 
-export async function getCompanyById(id: string) {
+const getCachedCompanies = unstable_cache(
+  fetchCompanies,
+  ['companies-list'],
+  { revalidate: 300, tags: ['companies'] }
+);
+
+export async function getCompanies() {
+  const { companyFilter } = await getRoleFilters();
+  return getCachedCompanies(companyFilter);
+}
+
+async function fetchCompanyById(id: string) {
   try {
     const company = await db.company.findUnique({
       where: { id, is_deleted: false },
@@ -36,7 +46,13 @@ export async function getCompanyById(id: string) {
   }
 }
 
-export async function getCompanyWithDetails(id: string) {
+export const getCompanyById = unstable_cache(
+  fetchCompanyById,
+  ['company-by-id'],
+  { revalidate: 300, tags: ['companies'] }
+);
+
+async function fetchCompanyWithDetails(id: string) {
   try {
     const company = await db.company.findUnique({
       where: { id, is_deleted: false },
@@ -59,6 +75,12 @@ export async function getCompanyWithDetails(id: string) {
     return null;
   }
 }
+
+export const getCompanyWithDetails = unstable_cache(
+  fetchCompanyWithDetails,
+  ['company-with-details'],
+  { revalidate: 300, tags: ['companies'] }
+);
 
 export async function createCompany(formData: any) {
   try {
@@ -86,6 +108,7 @@ export async function createCompany(formData: any) {
         created_by: "system", // Would be from user session
       }
     });
+    revalidateTag('companies');
     return { success: true, company: newCompany };
   } catch (error: any) {
     console.error("Failed to create company:", error);
@@ -98,6 +121,7 @@ export async function updateCompany(id: string, data: Partial<Company>) {
     where: { id },
     data: data as any,
   });
+  revalidateTag('companies');
   return updated;
 }
 
@@ -107,6 +131,7 @@ export async function deleteCompany(id: string) {
       where: { id },
       data: { status: "inactive" }
     });
+    revalidateTag('companies');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete company:", error);

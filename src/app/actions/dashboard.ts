@@ -1,9 +1,10 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { unstable_cache } from "next/cache";
 
-// Metrics for Admin Dashboard
-export async function getAdminMetrics() {
+// Internal functions to fetch from DB
+async function fetchAdminMetrics() {
   try {
     const [incomeAggr, expenseAggr, activeSites] = await Promise.all([
       db.transaction.aggregate({
@@ -20,7 +21,6 @@ export async function getAdminMetrics() {
     const totalIncome = incomeAggr._sum.amount || 0;
     const totalExpense = expenseAggr._sum.amount || 0;
 
-    // Simplistic mock data mixing with real totals for demo purposes
     return {
       revenue: totalIncome,
       expenses: totalExpense,
@@ -33,8 +33,7 @@ export async function getAdminMetrics() {
   }
 }
 
-// Metrics for Accountant Dashboard
-export async function getAccountantMetrics() {
+async function fetchAccountantMetrics() {
   try {
     const [incomeAggr, expenseAggr, pendingApprovals] = await Promise.all([
       db.transaction.aggregate({
@@ -52,8 +51,8 @@ export async function getAccountantMetrics() {
     const totalExpense = expenseAggr._sum.amount || 0;
     
     return {
-      todaysCollection: totalIncome * 0.1, // mock logic for "today"
-      pendingPayments: totalExpense * 0.2, // mock logic for "pending"
+      todaysCollection: totalIncome * 0.1,
+      pendingPayments: totalExpense * 0.2,
       bankBalance: totalIncome - totalExpense,
       pendingApprovals,
     };
@@ -63,8 +62,7 @@ export async function getAccountantMetrics() {
   }
 }
 
-// Metrics for Agent Dashboard
-export async function getAgentMetrics() {
+async function fetchAgentMetrics() {
   try {
     const purchasesAggr = await db.customerPurchase.aggregate({
       _sum: { total_agreement_value: true }
@@ -86,8 +84,7 @@ export async function getAgentMetrics() {
   }
 }
 
-// Metrics for HR Dashboard
-export async function getHRMetrics() {
+async function fetchHRMetrics() {
   try {
     const [employeeAggr, totalEmployees, activeAgents] = await Promise.all([
       db.employee.aggregate({
@@ -112,3 +109,28 @@ export async function getHRMetrics() {
     return { totalEmployees: 0, activeAgents: 0, monthlySalary: 0, pendingLeaves: 0 };
   }
 }
+
+// Export cached versions
+export const getAdminMetrics = unstable_cache(
+  fetchAdminMetrics,
+  ['admin-dashboard-metrics'],
+  { revalidate: 60, tags: ['dashboard'] }
+);
+
+export const getAccountantMetrics = unstable_cache(
+  fetchAccountantMetrics,
+  ['accountant-dashboard-metrics'],
+  { revalidate: 60, tags: ['dashboard'] }
+);
+
+export const getAgentMetrics = unstable_cache(
+  fetchAgentMetrics,
+  ['agent-dashboard-metrics'],
+  { revalidate: 60, tags: ['dashboard'] }
+);
+
+export const getHRMetrics = unstable_cache(
+  fetchHRMetrics,
+  ['hr-dashboard-metrics'],
+  { revalidate: 60, tags: ['dashboard'] }
+);

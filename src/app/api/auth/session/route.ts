@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminAuth } from "@/lib/firebase/admin";
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 
 export async function POST(request: Request) {
   try {
@@ -27,6 +28,14 @@ export async function POST(request: Request) {
       path: "/",
       sameSite: "lax",
     });
+
+    // Clear caches so the newly logged-in user gets perfectly fresh data initially
+    revalidateTag('companies');
+    revalidateTag('sites');
+    revalidateTag('customers');
+    revalidateTag('employees');
+    revalidateTag('transactions');
+    revalidateTag('dashboard');
 
     return NextResponse.json({ status: "success", uid: decodedToken.uid });
   } catch (error: any) {
