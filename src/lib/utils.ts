@@ -14,18 +14,7 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export function formatCurrencyDetailed(amount: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
 
-export function formatNumber(num: number): string {
-  return new Intl.NumberFormat("en-IN").format(num);
-}
 
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
@@ -35,34 +24,8 @@ export function formatDate(date: string | Date): string {
   return `${day}/${month}/${year}`;
 }
 
-export function formatDateLong(date: string | Date): string {
-  const d = new Date(date);
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
-}
 
-export function formatRelativeTime(date: string | Date): string {
-  const now = new Date();
-  const d = new Date(date);
-  const diffMs = now.getTime() - d.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return "Just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return formatDate(date);
-}
-
-export function generateId(prefix: string): string {
-  const year = new Date().getFullYear();
-  const num = Math.floor(Math.random() * 99999)
-    .toString()
-    .padStart(5, "0");
-  return `${prefix}-${year}-${num}`;
-}
 
 export function maskAadhaar(aadhaar: string): string {
   if (!aadhaar || aadhaar.length < 4) return "****";

@@ -89,9 +89,9 @@ export async function createSale(formData: any) {
       return purchase;
     });
 
-    revalidateTag('customers');
-    revalidateTag('sites');
-    revalidateTag('transactions');
+    revalidateTag('customers', 'default');
+    revalidateTag('sites', 'default');
+    revalidateTag('transactions', 'default');
     return { success: true, purchase: result };
   } catch (error: any) {
     console.error("Failed to create sale:", error);

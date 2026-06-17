@@ -120,7 +120,7 @@ export async function createSite(formData: any) {
         created_by: "system",
       }
     });
-    revalidateTag('sites');
+    revalidateTag('sites', 'default');
     return { success: true, site: newSite };
   } catch (error: any) {
     console.error("Failed to create site:", error);
@@ -133,7 +133,7 @@ export async function updateSite(id: string, data: Partial<Site>) {
     where: { id },
     data: data as any,
   });
-  revalidateTag('sites');
+  revalidateTag('sites', 'default');
   return updated;
 }
 
@@ -143,7 +143,7 @@ export async function deleteSite(id: string) {
       where: { id },
       data: { status: "on_hold" } 
     });
-    revalidateTag('sites');
+    revalidateTag('sites', 'default');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete site:", error);

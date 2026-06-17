@@ -135,7 +135,7 @@ export async function createEmployee(formData: any) {
         status: "active",
       }
     });
-    revalidateTag('employees');
+    revalidateTag('employees', 'default');
     return { success: true, employee: newEmployee };
   } catch (error: any) {
     console.error("Failed to create employee:", error);
@@ -148,7 +148,7 @@ export async function updateEmployee(id: string, data: Partial<Employee>): Promi
     where: { id },
     data: data as any,
   });
-  revalidateTag('employees');
+  revalidateTag('employees', 'default');
   return updated;
 }
 
@@ -158,7 +158,7 @@ export async function deleteEmployee(id: string) {
       where: { id },
       data: { is_deleted: true, status: "inactive" }
     });
-    revalidateTag('employees');
+    revalidateTag('employees', 'default');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete employee:", error);

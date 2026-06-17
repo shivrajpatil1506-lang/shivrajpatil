@@ -108,7 +108,7 @@ export async function createCompany(formData: any) {
         created_by: "system", // Would be from user session
       }
     });
-    revalidateTag('companies');
+    revalidateTag('companies', 'default');
     return { success: true, company: newCompany };
   } catch (error: any) {
     console.error("Failed to create company:", error);
@@ -121,7 +121,7 @@ export async function updateCompany(id: string, data: Partial<Company>) {
     where: { id },
     data: data as any,
   });
-  revalidateTag('companies');
+  revalidateTag('companies', 'default');
   return updated;
 }
 
@@ -131,7 +131,7 @@ export async function deleteCompany(id: string) {
       where: { id },
       data: { status: "inactive" }
     });
-    revalidateTag('companies');
+    revalidateTag('companies', 'default');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete company:", error);

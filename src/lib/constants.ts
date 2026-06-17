@@ -282,6 +282,7 @@ export const ACCOUNTANT_NAV: NavItem[] = [
   { label: "Dashboard", href: "/accountant/dashboard", icon: "LayoutDashboard" },
   { label: "Transactions", href: "/accountant/transactions", icon: "IndianRupee" },
   { label: "Double-Entry Bookkeeping", href: "/accountant/accounting", icon: "BookOpen" },
+  { label: "Bank Reconciliation", href: "/accountant/accounting/reconciliation", icon: "CheckSquare" },
   { label: "Customers", href: "/accountant/customers", icon: "Users" },
   { label: "Reports", href: "/accountant/reports", icon: "BarChart3" },
   { label: "My Work", href: "/accountant/my-work", icon: "ClipboardList" },
@@ -292,6 +293,7 @@ export const HR_NAV: NavItem[] = [
   { label: "Employees", href: "/hr/employees", icon: "UserCog" },
   { label: "Agents", href: "/hr/agents", icon: "UserCheck" },
   { label: "Salary Transactions", href: "/hr/salary", icon: "IndianRupee" },
+  { label: "Payroll Automation", href: "/hr/payroll", icon: "CheckSquare" },
   { label: "My Work", href: "/hr/my-work", icon: "ClipboardList" },
 ];
 

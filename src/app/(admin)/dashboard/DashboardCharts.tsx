@@ -2,12 +2,17 @@
 
 import React from "react";
 import { formatCurrency } from "@/lib/utils";
-import { monthlyRevenueExpense, categoryBreakdown } from "@/lib/mock-data";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
 
-export default function DashboardCharts() {
+export default function DashboardCharts({
+  monthlyRevenueExpense,
+  categoryBreakdown
+}: {
+  monthlyRevenueExpense: { name: string, revenue: number, expenses: number }[],
+  categoryBreakdown: { name: string, value: number }[]
+}) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Main Chart */}

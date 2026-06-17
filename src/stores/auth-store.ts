@@ -15,9 +15,11 @@ type AuthUser = {
 
 type AuthStore = {
   user: AuthUser | null;
+  currentCompany: { id: string; name: string } | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   setUser: (user: AuthUser) => void;
+  setCurrentCompany: (company: { id: string; name: string } | null) => void;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 };
@@ -33,9 +35,11 @@ const defaultUser: AuthUser = {
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: defaultUser,
+  currentCompany: null,
   isAuthenticated: true,
   isLoading: false,
   setUser: (user) => set({ user, isAuthenticated: true }),
-  logout: () => set({ user: null, isAuthenticated: false }),
+  setCurrentCompany: (company) => set({ currentCompany: company }),
+  logout: () => set({ user: null, currentCompany: null, isAuthenticated: false }),
   setLoading: (isLoading) => set({ isLoading }),
 }));

@@ -4,12 +4,12 @@ import type { NextRequest } from 'next/server';
 export async function proxy(request: NextRequest) {
   const session = request.cookies.get('session');
 
-  // Paths that don't require authentication
-  const publicPaths = ['/login', '/api/auth/session', '/api/auth/logout'];
+  // Paths that don't require authentication via session cookies
+  const publicPaths = ['/login', '/api/auth/session', '/api/auth/logout', '/api/v1'];
   
   const isPublicPath = publicPaths.some(p => request.nextUrl.pathname.startsWith(p));
 
-  // If there's no session and the user is trying to access a protected route
+  // If there's no session and the user is trying to access a protected Web UI route
   if (!session && !isPublicPath) {
     // Redirect them to the login page
     return NextResponse.redirect(new URL('/login', request.url));

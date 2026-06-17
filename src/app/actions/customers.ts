@@ -171,8 +171,8 @@ export async function createCustomerWithPurchase(formData: any) {
       return customer;
     });
     
-    revalidateTag('customers');
-    revalidateTag('transactions'); // Because a transaction is created
+    revalidateTag('customers', 'default');
+    revalidateTag('transactions', 'default'); // Because a transaction is created
     return { success: true, customer: result };
   } catch (error: any) {
     console.error("Failed to create customer:", error);
@@ -185,7 +185,7 @@ export async function updateCustomer(id: string, data: Partial<Customer>) {
     where: { id },
     data: data as any,
   });
-  revalidateTag('customers');
+  revalidateTag('customers', 'default');
   return updated;
 }
 
@@ -195,7 +195,7 @@ export async function deleteCustomer(id: string) {
       where: { id },
       data: { is_deleted: true }
     });
-    revalidateTag('customers');
+    revalidateTag('customers', 'default');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete customer:", error);

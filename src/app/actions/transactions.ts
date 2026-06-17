@@ -31,7 +31,7 @@ export async function createTransaction(formData: any) {
       }
     });
 
-    revalidateTag('transactions');
+    revalidateTag('transactions', 'default');
     return { success: true, transaction };
   } catch (error: any) {
     console.error("Failed to create transaction:", error);
@@ -113,7 +113,7 @@ export async function updateTransaction(id: string, data: Partial<Transaction>) 
     where: { id },
     data: data as any,
   });
-  revalidateTag('transactions');
+  revalidateTag('transactions', 'default');
   return updated;
 }
 
@@ -123,7 +123,7 @@ export async function deleteTransaction(id: string) {
       where: { id },
       data: { status: "cancelled" }
     });
-    revalidateTag('transactions');
+    revalidateTag('transactions', 'default');
     return { success: true };
   } catch (error: any) {
     console.error("Failed to delete transaction:", error);

@@ -1,8 +1,7 @@
 import React from "react";
 import { formatCurrency } from "@/lib/utils";
-import { instalmentStatus } from "@/lib/mock-data";
 import { getAdminMetrics } from "@/app/actions/dashboard";
-import { TrendingUp, TrendingDown, Building2, Users, Wallet, Receipt, LineChart } from "lucide-react";
+import { TrendingUp, TrendingDown, Building2, Wallet, Receipt, LineChart } from "lucide-react";
 import DashboardCharts from "./DashboardCharts";
 
 export default async function AdminDashboard() {
@@ -46,7 +45,10 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Client Component for Heavy Charts */}
-      <DashboardCharts />
+      <DashboardCharts 
+        monthlyRevenueExpense={metrics.monthlyRevenueExpense || []} 
+        categoryBreakdown={metrics.categoryBreakdown || []} 
+      />
       
       {/* Instalment Status Table */}
       <div className="bg-white rounded-xl border border-neutral-100 shadow-sm p-6 overflow-hidden">
@@ -63,9 +65,9 @@ export default async function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {instalmentStatus.map((site, i) => {
+              {(metrics.instalmentStatus || []).map((site: any, i: number) => {
                 const total = site.collected + site.pending + site.overdue;
-                const percent = Math.round((site.collected / total) * 100);
+                const percent = total > 0 ? Math.round((site.collected / total) * 100) : 0;
                 return (
                   <tr key={i} className="border-b border-neutral-50 hover:bg-neutral-50 transition-colors">
                     <td className="py-3 px-4 font-medium text-neutral-900">{site.name}</td>
