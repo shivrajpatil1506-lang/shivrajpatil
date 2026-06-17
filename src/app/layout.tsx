@@ -5,7 +5,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import { getCurrentUser } from "@/lib/auth";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
-
+import NextTopLoader from 'nextjs-toploader';
 
 export const metadata: Metadata = {
   title: "GB Infra — Operations Management Platform",
@@ -18,6 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body suppressHydrationWarning>
+        <NextTopLoader color="#10b981" showSpinner={false} shadow="0 0 10px #10b981,0 0 5px #10b981" />
         <ToastProvider>
           <AuthProvider user={user}>
             {children}
