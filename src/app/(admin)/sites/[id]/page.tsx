@@ -9,6 +9,7 @@ import { getSiteWithDetails } from "@/app/actions/sites";
 
 const tabs = ["Overview", "Units", "Customers"];
 
+
 type SiteDetails = NonNullable<Awaited<ReturnType<typeof getSiteWithDetails>>>;
 
 export default function SiteDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -23,6 +24,7 @@ export default function SiteDetailPage({ params }: { params: Promise<{ id: strin
       setLoading(false);
     });
   }, [id]);
+
 
   const unitStats = useMemo(() => {
     if (!site?.units) return {};
@@ -142,3 +144,4 @@ export default function SiteDetailPage({ params }: { params: Promise<{ id: strin
     </div>
   );
 }
+

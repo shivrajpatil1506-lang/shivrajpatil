@@ -260,6 +260,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
   { label: "Companies", href: "/companies", icon: "Building2" },
   { label: "Sites", href: "/sites", icon: "MapPin" },
+  { label: "Flat Map", href: "/flat-map", icon: "LayoutDashboard" },
   { label: "Customers", href: "/customers", icon: "Users" },
   { label: "Employees", href: "/employees", icon: "UserCog" },
   { label: "Agents", href: "/agents", icon: "UserCheck" },

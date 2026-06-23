@@ -94,6 +94,9 @@ model Site {
   units        SiteUnit[]
   transactions Transaction[]
   purchases    CustomerPurchase[]
+  // Flat Map relations
+  flat_types   FlatType[]
+  blocks       Block[]
 }
 
 model SiteUnit {
@@ -115,6 +118,87 @@ model SiteUnit {
   // Relations
   site      Site               @relation(fields: [site_id], references: [id])
   purchases CustomerPurchase[]
+}
+
+// ==========================================
+// FLAT MAP MODULE
+// ==========================================
+
+/// Project-level flat type definitions (1BHK, 2BHK, 3BHK, custom)
+model FlatType {
+  id                  String   @id @default(cuid())
+  site_id             String
+  name                String   // "1BHK", "2BHK", "3BHK", "Studio", etc.
+  default_carpet_area Float    @default(0)
+  default_loading_pct Float    @default(20)
+  color_tag           String?  // CSS hex color for visual distinction on grid
+  is_system_default   Boolean  @default(false) // true for seeded 1BHK/2BHK/3BHK
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  site  Site   @relation(fields: [site_id], references: [id])
+  flats Flat[]
+
+  @@unique([site_id, name])
+  @@map("flat_types")
+}
+
+/// Top-level structure within a site (formerly "Tower")
+model Block {
+  id               String   @id @default(cuid())
+  site_id          String
+  name             String   // "Block A", "Wing 1", etc.
+  default_category String   @default("new") // "new" | "redev"
+  rate_new         Float    @default(0)     // ₹/sqft for new/free-sale flats
+  rate_redev       Float    @default(0)     // ₹/sqft for redeveloped flats
+  sort_index       Int      @default(0)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  site   Site    @relation(fields: [site_id], references: [id])
+  floors Floor[]
+
+  @@map("blocks")
+}
+
+/// A level within a Block
+model Floor {
+  id         String   @id @default(cuid())
+  block_id   String
+  label      String   // "Floor 6", "Ground", "Podium", "Terrace"
+  sort_index Int      @default(0) // explicit ordering
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  block Block  @relation(fields: [block_id], references: [id], onDelete: Cascade)
+  flats Flat[]
+
+  @@map("floors")
+}
+
+/// An individual sellable flat unit on a Floor
+model Flat {
+  id                   String   @id @default(cuid())
+  floor_id             String
+  flat_type_id         String?  // references FlatType
+  no                   String   // flat number — unique within Block enforced at app level
+  category             String   @default("new")    // "new" | "redev"
+  status               String   @default("unsold") // "unsold" | "booked" | "hold" | "sold"
+  carpet_area          Float    @default(0)
+  loading_pct          Float    @default(20)
+  sale_area            Float    @default(0)
+  sale_area_overridden Boolean  @default(false) // true if user manually set sale_area
+  facing               String?  // "North", "Sea-facing", etc. — optional
+  notes                String?  // free text
+  customer_id          String?  // references Customer
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  floor     Floor     @relation(fields: [floor_id], references: [id], onDelete: Cascade)
+  flat_type FlatType? @relation(fields: [flat_type_id], references: [id])
+  customer  Customer? @relation(fields: [customer_id], references: [id])
+
+  @@map("flats")
 }
 
 model Employee {
@@ -192,6 +276,7 @@ model Customer {
   purchases    CustomerPurchase[]
   instalments  InstalmentSchedule[]
   transactions Transaction[]
+  flats        Flat[]
 }
 
 model CustomerPurchase {

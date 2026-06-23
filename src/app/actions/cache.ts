@@ -7,5 +7,5 @@ import { revalidateTag } from "next/cache";
  * Used when a user logs in to ensure fresh data is loaded, overriding the 5-minute cache.
  */
 export async function refreshDashboardCache() {
-  revalidateTag("dashboard");
+  revalidateTag("dashboard", "default" as any);
 }

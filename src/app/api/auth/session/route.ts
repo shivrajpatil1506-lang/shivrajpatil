@@ -30,12 +30,12 @@ export async function POST(request: Request) {
     });
 
     // Clear caches so the newly logged-in user gets perfectly fresh data initially
-    revalidateTag('companies');
-    revalidateTag('sites');
-    revalidateTag('customers');
-    revalidateTag('employees');
-    revalidateTag('transactions');
-    revalidateTag('dashboard');
+    revalidateTag('dashboard', 'default' as any);
+    revalidateTag('flats', 'default' as any);
+    revalidateTag('customers', 'default' as any);
+    revalidateTag('transactions', 'default' as any);
+    revalidateTag('companies', 'default' as any);
+    revalidateTag('sites', 'default' as any);
 
     return NextResponse.json({ status: "success", uid: decodedToken.uid });
   } catch (error: any) {

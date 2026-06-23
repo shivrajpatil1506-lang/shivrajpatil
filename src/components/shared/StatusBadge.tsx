@@ -27,9 +27,11 @@ const statusStyles: Record<string, string> = {
   medium: "bg-amber-50 text-amber-700 border-amber-200",
   low: "bg-emerald-50 text-emerald-700 border-emerald-200",
   available: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  unsold:    "bg-slate-100 text-slate-600 border-slate-300",
   booked: "bg-blue-50 text-blue-700 border-blue-200",
   sold: "bg-purple-50 text-purple-700 border-purple-200",
   hold: "bg-amber-50 text-amber-700 border-amber-200",
+
   suspended: "bg-red-50 text-red-700 border-red-200",
   edit: "bg-amber-50 text-amber-700 border-amber-200",
   delete: "bg-red-50 text-red-700 border-red-200",
@@ -48,6 +50,8 @@ const statusLabels: Record<string, string> = {
   in_progress: "In Progress", review: "Review", done: "Done",
   high: "High", medium: "Medium", low: "Low",
   available: "Available", booked: "Booked", sold: "Sold", hold: "Hold",
+  unsold: "Unsold",
+
   deleted: "Deleted", awaiting_info: "Awaiting Info",
   suspended: "Suspended", edit: "Edit", delete: "Delete",
   defaulted: "Defaulted", residential: "Residential",

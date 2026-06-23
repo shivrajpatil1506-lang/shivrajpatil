@@ -35,6 +35,25 @@ export const getCustomers = unstable_cache(
   { revalidate: 300, tags: ['customers'] }
 );
 
+export async function getCustomersForSelect() {
+  try {
+    const customers = await db.customer.findMany({
+      where: { is_deleted: false },
+      orderBy: { first_name: "asc" },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        mobile_1: true,
+      }
+    });
+    return customers;
+  } catch (error) {
+    console.error("Failed to fetch customers for select:", error);
+    return [];
+  }
+}
+
 async function fetchCustomersForUserId(employeeId: string) {
   try {
     const customers = await db.customer.findMany({
@@ -171,8 +190,8 @@ export async function createCustomerWithPurchase(formData: any) {
       return customer;
     });
     
-    revalidateTag('customers', 'default');
-    revalidateTag('transactions', 'default'); // Because a transaction is created
+    revalidateTag('customers', 'default' as any);
+    revalidateTag('transactions', 'default' as any); // Because a transaction is created
     return { success: true, customer: result };
   } catch (error: any) {
     console.error("Failed to create customer:", error);
@@ -185,20 +204,43 @@ export async function updateCustomer(id: string, data: Partial<Customer>) {
     where: { id },
     data: data as any,
   });
-  revalidateTag('customers', 'default');
+  revalidateTag('customers', 'default' as any);
   return updated;
 }
 
 export async function deleteCustomer(id: string) {
   try {
-    await db.customer.update({
+    const customer = await db.customer.update({
       where: { id },
       data: { is_deleted: true }
     });
-    revalidateTag('customers', 'default');
-    return { success: true };
+    revalidateTag("customers", "default" as any);
+    return { success: true, customer };
   } catch (error: any) {
     console.error("Failed to delete customer:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function quickCreateCustomer(data: {
+  first_name: string;
+  last_name: string;
+  mobile_1: string;
+}) {
+  try {
+    const user = await getCurrentUser();
+    
+    const customer = await db.customer.create({
+      data: {
+        ...data,
+        added_by: user?.employee_id || null,
+      }
+    });
+    
+    revalidateTag("customers", "default" as any);
+    return { success: true, customer };
+  } catch (error: any) {
+    console.error("Failed to quick create customer:", error);
     return { success: false, error: error.message };
   }
 }
