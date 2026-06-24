@@ -21,7 +21,7 @@ export function FlatTile({ flat, onClick }: FlatTileProps) {
       onClick={() => onClick(flat)}
       title={`Flat ${flat.no} · ${typeName} · ${flat.status}${flat.customer ? ` · ${flat.customer.first_name} ${flat.customer.last_name}` : ""}`}
       className={cn(
-        "relative flex flex-col items-start p-3 rounded-xl border transition-all duration-300 ease-out",
+        "relative flex flex-col items-start p-3 rounded-xl border transition-all duration-300 ease-out min-w-0",
         "hover:-translate-y-[2px] hover:shadow-[0_8px_16px_-6px_rgba(0,0,0,0.1)] focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-1",
         "w-full text-left cursor-pointer group bg-gradient-to-br from-white to-neutral-50/50",
         statusCfg.border,

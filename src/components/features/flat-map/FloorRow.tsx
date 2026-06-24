@@ -56,7 +56,7 @@ export function FloorRow({
       <div className="flex items-center gap-3 px-4 py-2.5 border-b border-neutral-50 group">
         <button
           onClick={() => setCollapsed(c => !c)}
-          className="flex items-center gap-2 flex-1 text-left"
+          className="flex items-center gap-2 flex-1 text-left min-w-0"
         >
           <span className="font-semibold text-sm text-neutral-800 min-w-[80px]">{floor.label}</span>
           {collapsed ? <ChevronDown className="w-3.5 h-3.5 text-neutral-400" /> : <ChevronUp className="w-3.5 h-3.5 text-neutral-400" />}
@@ -121,7 +121,7 @@ export function FloorRow({
               {hasFilters && visibleFlats.length === 0 ? (
                 <p className="text-xs text-neutral-400 py-3 text-center">No flats match current filters.</p>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                   {visibleFlats.map(flat => (
                     <FlatTile key={flat.id} flat={flat} onClick={onFlatClick} />
                   ))}

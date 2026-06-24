@@ -65,7 +65,7 @@ export function BlockCard({
       <div className="flex items-center gap-3 px-5 py-4 bg-gradient-to-r from-neutral-50 to-white border-b border-neutral-100">
         <button
           onClick={() => setCollapsed(c => !c)}
-          className="flex items-center gap-2 flex-1 text-left"
+          className="flex items-center gap-2 flex-1 text-left min-w-0"
         >
           {collapsed
             ? <ChevronRight className="w-4 h-4 text-neutral-500" />
