@@ -103,7 +103,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
       {/* Monthly performance chart */}
       <div className="bg-white rounded-xl border border-neutral-100 shadow-sm p-5 mb-6">
         <h3 className="text-sm font-semibold text-neutral-900 mb-4" style={{ fontFamily: "var(--font-heading)" }}>Monthly Sales Performance</h3>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={220} minWidth={0} minHeight={0}>
           <BarChart data={monthlySales} barSize={28}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} />

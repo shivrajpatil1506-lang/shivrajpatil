@@ -96,7 +96,6 @@ export function CustomersClient({ initialData }: { initialData: FlattenedCustome
       key: "full_name", label: "Customer", sortable: true,
       render: (row) => <Link href={`/customers/${row.id}`} className="font-medium text-neutral-900 hover:text-primary-600 transition-colors">{row.full_name}</Link>
     },
-    { key: "mobile_1", label: "Mobile", sortable: false, render: (row) => <span className="tabular-nums">{row.mobile_1}</span> },
     { key: "site_name", label: "Site", sortable: true, render: (row) => <span className="max-w-[140px] truncate block">{row.site_name}</span> },
     { key: "property_type", label: "Property", sortable: true, render: (row) => <span className="text-[10px] bg-neutral-100 px-1.5 py-0.5 rounded font-medium">{row.property_type}</span> },
     { key: "unit_number", label: "Unit", sortable: true, render: (row) => <span className="font-mono text-xs">{row.unit_number}</span> },

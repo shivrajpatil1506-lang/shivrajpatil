@@ -12,22 +12,22 @@ export default function AuthProvider({
   user: AuthUser | null 
 }) {
   const initialized = useRef(false);
+  const prevUserStr = useRef(JSON.stringify(user));
 
-  useEffect(() => {
-    if (!initialized.current) {
-      if (user) {
-        useAuthStore.getState().setUser({
-          id: user.employee_id || user.uid,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        });
-      } else {
-        useAuthStore.getState().logout();
-      }
-      initialized.current = true;
+  if (!initialized.current || prevUserStr.current !== JSON.stringify(user)) {
+    if (user) {
+      useAuthStore.getState().setUser({
+        id: user.employee_id || user.uid,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      useAuthStore.getState().logout();
     }
-  }, [user]);
+    initialized.current = true;
+    prevUserStr.current = JSON.stringify(user);
+  }
 
   return <>{children}</>;
 }

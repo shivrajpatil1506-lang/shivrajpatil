@@ -72,11 +72,9 @@ export function EmployeesClient({ initialEmployees, companies }: { initialEmploy
         </div>
       )
     },
-    { key: "employee_code", label: "ID", sortable: true, render: (row) => <span className="font-mono text-xs">{row.employee_code}</span> },
     { key: "department", label: "Department", sortable: true, sortValue: (row) => DEPARTMENT_LABELS[row.department as keyof typeof DEPARTMENT_LABELS] || row.department, render: (row) => DEPARTMENT_LABELS[row.department as keyof typeof DEPARTMENT_LABELS] || row.department },
     { key: "designation", label: "Designation", sortable: true },
     { key: "company", label: "Company", sortable: true, sortValue: (row) => row.company?.short_name || row.company?.name || "", render: (row) => row.company?.short_name || row.company?.name || "Unknown" },
-    { key: "personal_mobile", label: "Mobile", sortable: false, render: (row) => <span className="tabular-nums">{row.personal_mobile}</span> },
     { key: "status", label: "Status", sortable: true, render: (row) => <StatusBadge status={row.status} /> },
     { key: "join_date", label: "Joined", sortable: true, sortValue: (row) => row.join_date ? new Date(row.join_date).getTime() : 0, render: (row) => <span className="tabular-nums">{row.join_date ? formatDate(row.join_date) : 'N/A'}</span> }
   ];

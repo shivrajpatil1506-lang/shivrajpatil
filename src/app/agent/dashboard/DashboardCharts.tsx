@@ -10,7 +10,7 @@ export default function DashboardCharts() {
     <div className="bg-white rounded-xl border border-neutral-100 shadow-sm p-6">
       <h3 className="text-base font-bold text-neutral-900 mb-6" style={{ fontFamily: "var(--font-heading)" }}>Top Performers</h3>
       <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={300}>
           <BarChart data={agentPerformance} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e5e5e5" />
             <XAxis type="number" tickFormatter={(val) => `₹${(val/10000000).toFixed(1)}Cr`} axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#737373' }} />

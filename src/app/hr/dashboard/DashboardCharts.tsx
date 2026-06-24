@@ -10,7 +10,7 @@ export default function DashboardCharts() {
     <div className="bg-white rounded-xl border border-neutral-100 shadow-sm p-6">
       <h3 className="text-base font-bold text-neutral-900 mb-6" style={{ fontFamily: "var(--font-heading)" }}>Monthly Salary Outflow Trend</h3>
       <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={monthlySalaryCost} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <defs>
               <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">

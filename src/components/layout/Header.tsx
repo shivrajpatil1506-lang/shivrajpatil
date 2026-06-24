@@ -120,50 +120,6 @@ export default function Header({ title }: HeaderProps) {
           )}
         </div>
 
-        {/* Separator */}
-        <div className="w-px h-8 bg-neutral-200 mx-1" />
-
-        {/* User Menu */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
-            className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-xs font-semibold">
-              {user ? getInitials(user.name) : "U"}
-            </div>
-            <div className="hidden sm:block text-left">
-              <p className="text-sm font-medium text-neutral-900 leading-none">{user?.name}</p>
-              <p className="text-[10px] text-neutral-400 capitalize mt-0.5">{user?.role}</p>
-            </div>
-            <ChevronDown className="w-3.5 h-3.5 text-neutral-400 hidden sm:block" />
-          </button>
-
-          {showUserMenu && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-neutral-200 z-50 animate-fade-in overflow-hidden py-1">
-                <div className="px-3 py-2 border-b border-neutral-100">
-                  <p className="text-sm font-medium text-neutral-900">{user?.name}</p>
-                  <p className="text-xs text-neutral-500">{user?.email}</p>
-                </div>
-                <Link href="/profile" className="block w-full px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 transition-colors" onClick={() => setShowUserMenu(false)}>Profile</Link>
-                <Link href="/settings" className="block w-full px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-50 transition-colors" onClick={() => setShowUserMenu(false)}>Settings</Link>
-                <div className="border-t border-neutral-100" />
-                <button 
-                  onClick={async () => {
-                    await fetch('/api/auth/logout', { method: 'POST' });
-                    useAuthStore.getState().logout();
-                    router.push("/login");
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </div>
-            </>
-          )}
-        </div>
       </div>
     </header>
   );

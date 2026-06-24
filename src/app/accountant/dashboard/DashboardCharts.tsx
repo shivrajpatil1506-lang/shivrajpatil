@@ -10,7 +10,7 @@ export default function DashboardCharts() {
     <div className="bg-white rounded-xl border border-neutral-100 shadow-sm p-6">
       <h3 className="text-base font-bold text-neutral-900 mb-6" style={{ fontFamily: "var(--font-heading)" }}>Cash Flow Trend</h3>
       <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={cashFlowData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e5e5" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#737373' }} dy={10} />
