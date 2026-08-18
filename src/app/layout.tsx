@@ -10,6 +10,9 @@ import NextTopLoader from 'nextjs-toploader';
 export const metadata: Metadata = {
   title: "GB Infra — Operations Management Platform",
   description: "Centralized financial and operational management platform for GB Infra",
+  verification: {
+    google: "KaTC4JyN_MhQHiOdX93Q_-YNpqvpwr3mnnvvYNZ1g84",
+  }
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
