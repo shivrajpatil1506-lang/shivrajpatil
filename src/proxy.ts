@@ -5,7 +5,7 @@ export async function proxy(request: NextRequest) {
   const session = request.cookies.get('session');
 
   // Paths that don't require authentication via session cookies
-  const publicPaths = ['/login', '/api/auth/session', '/api/auth/logout', '/api/v1'];
+  const publicPaths = ['/login', '/sitemap.xml', '/api/auth/session', '/api/auth/logout', '/api/v1'];
   
   const isPublicPath = publicPaths.some(p => request.nextUrl.pathname.startsWith(p));
 
